@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="./js/main.js" type="module"></script>
+    <link rel="stylesheet" href="./css/main.css" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap"
+      rel="stylesheet"
+    />
+
+    <title>MovieDB PWA</title>
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <h1>Movie Night</h1>
+      </div>
+    </header>
+
+    <main>
+      <div class="container">
+        <form action="" class="form-wrapper" id="search-form">
+          <div class="form-box">
+            <input type="text" name="search" id="search" placeholder="Search" />
+          </div>
+
+          <div class="form-box">
+            <select class="movies" name="movies" id="movies">
+              <option value="" disabled selected>Select An Option</option>
+              <option value="popularity">Sort by popularity</option>
+              <option value="release_date">Sort by release date</option>
+              <option value="vote">Sort by vote</option>
+            </select>
+          </div>
+        </form>
+
+        <div class="movies-container">
+          <ul>
+            <!-- APPEND MOVIES HERE -->
+          </ul>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>
