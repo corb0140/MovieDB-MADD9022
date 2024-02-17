@@ -213,6 +213,7 @@ header {
   text-align: center;
   padding: 2rem 1.5rem;
   background-color: var(--secondary-color);
+  color: var(--accent-color);
 }
 
 header h1 {
@@ -228,25 +229,88 @@ main {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+
+  padding: 0.55rem 0;
 }
 
 .form-wrapper {
   background-color: white;
 
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.55rem;
+  display: grid;
+
+  gap: 1.25rem;
+  padding: 0.455rem;
+
+  background-color: var(--secondary-color);
 }
 
 .form-box {
-  padding: 1.5rem;
-  background-color: red;
-  width: 100%;
+  margin: 0;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
-.movies,
-input {
+.selectOption,
+input,
+.searchButton {
   width: 80%;
+  padding: 0.655rem;
+}
+
+ul {
+  margin: 0;
+}
+
+li {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+
+  padding-top: 0.825rem;
+}
+
+.card {
+  background-color: white;
+  padding: 2rem;
+
+  width: 25rem;
+  height: 15rem;
+  position: relative;
+}
+
+.card-img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 50%;
+  height: 100%;
+}
+
+.card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-content {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.card-content h2 {
+  text-align: center;
+  padding: 0.755rem;
 }

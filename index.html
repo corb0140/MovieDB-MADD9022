@@ -24,26 +24,37 @@
 
     <main>
       <div class="container">
-        <form action="" class="form-wrapper" id="search-form">
+        <form
+          action="searchResults.html"
+          method="GET"
+          class="form-wrapper"
+          id="search-form"
+        >
           <div class="form-box">
             <input type="text" name="search" id="search" placeholder="Search" />
           </div>
 
           <div class="form-box">
-            <select class="movies" name="movies" id="movies">
-              <option value="" disabled selected>Select An Option</option>
+            <select class="selectOption" name="selectOption" id="selectOption">
+              <!-- <option value="" disabled selected>Select An Option</option> -->
               <option value="popularity">Sort by popularity</option>
-              <option value="release_date">Sort by release date</option>
+              <option value="release-date">Sort by release date</option>
               <option value="vote">Sort by vote</option>
             </select>
           </div>
+
+          <div class="form-box">
+            <button type="submit" class="searchButton btn" id="searchButton">
+              Search
+            </button>
+          </div>
         </form>
 
-        <div class="movies-container">
-          <ul>
-            <!-- APPEND MOVIES HERE -->
-          </ul>
-        </div>
+        <!-- <div class="movies-container">
+          <ul class="container card-container"> -->
+        <!-- APPEND MOVIES HERE -->
+        <!-- </ul>
+        </div> -->
       </div>
     </main>
   </body>
