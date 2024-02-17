@@ -10,24 +10,22 @@ const APP = {
   init: function () {
     APP.serviceWorker();
 
-    if (window.location.pathname === "/index.html") {
-      APP.searchForm.addEventListener("submit", (ev) => {
-        ev.preventDefault();
+    APP.searchForm.addEventListener("submit", (ev) => {
+      ev.preventDefault();
 
-        if (APP.selectOption.value === "popularity") {
-          APP.selection = "popularity";
-        } else if (APP.selectOption.value === "release-date") {
-          APP.selection = "release-date";
-        } else if (APP.selectOption.value === "vote") {
-          APP.selection = "vote";
-        }
+      if (APP.selectOption.value === "popularity") {
+        APP.selection = "popularity";
+      } else if (APP.selectOption.value === "release-date") {
+        APP.selection = "release-date";
+      } else if (APP.selectOption.value === "vote") {
+        APP.selection = "vote";
+      }
 
-        // pass keyword and selection to searchResults.html query
-        APP.searchResults(APP.selection, APP.search.value);
+      // fetch movies
+      APP.fetchMovies(APP.selection, APP.search.value);
 
-        APP.searchForm.reset();
-      });
-    }
+      APP.searchForm.reset();
+    });
 
     // Online/Offline
     APP.online();
@@ -74,20 +72,7 @@ const APP = {
       });
   },
 
-  searchResults: (selection, keyword) => {
-    window.location.href = `searchResults.html?keyword=${keyword}&selection=${selection}`;
-
-    const queryString = window.location.search;
-    const urlParams = new URLSearchParams(queryString);
-    const qKeyword = urlParams.get("keyword");
-    const qSelection = urlParams.get("selection");
-
-    console.log(qKeyword, qSelection);
-    console.log(keyword, selection);
-
-    // fetch movies
-    APP.fetchMovies(selection, keyword);
-  },
+  searchResults: () => {},
 
   cacheResults: () => {},
 

@@ -31,6 +31,7 @@ self.addEventListener("activate", async (ev) => {
 });
 
 self.addEventListener("fetch", (ev) => {
+  let mode = ev.request.mode;
   let url = new URL(ev.request.url);
   const isJSON = url.hostname.includes("moviedb-6n0o.onrender.com");
   let isOnline = navigator.onLine; // determine if the browser is currently offline
@@ -43,18 +44,53 @@ self.addEventListener("fetch", (ev) => {
     url.pathname.includes("svg") ||
     url.pathname.includes("ico") ||
     url.hostname.includes("image.tmdb.org");
+  let isSearchResults = url.pathname.includes("searchResults.html");
+  let isDetails = url.pathname.includes("details.html");
 
   if (isOnline) {
     // if online, fetch the resource
-    // ev.respondWith(fetchOnline(ev));
+    // ev.respondWith();
+
+    if (mode === "navigate") {
+      if (isSearchResults) {
+        ev.respondWith(
+          fetch(ev.request).catch(() => {
+            return caches.match("./searchResults.html");
+          })
+        );
+      } else if (isDetails) {
+        ev.respondWith(
+          fetch(ev.request).catch(() => {
+            return caches.match("./details.html");
+          })
+        );
+      } else {
+        ev.respondWith(
+          fetch(ev.request).catch(() => {
+            return caches.match("./index.html");
+          })
+        );
+      }
+    }
   } else {
     // if offline, respond with cached files
-    // ev.respondWith(fetchOffline(ev));
+
+    if (mode === "navigate") {
+      if (caches.keys().length === 0) {
+        ev.respondWith(
+          fetch(ev.request).catch(() => {
+            return caches.match("./404.html");
+          })
+        );
+      } else {
+        ev.respondWith(
+          fetch(ev.request).catch(() => {
+            return caches.match("./cacheResults.html");
+          })
+        );
+      }
+    }
   }
 });
-
-const fetchOnline = (ev) => {};
-
-const fetchOffline = (ev) => {};
 
 self.addEventListener("message", (ev) => {});
