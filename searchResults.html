@@ -38,13 +38,13 @@
 
       // Get form data from URL query string
       const params = new URLSearchParams(window.location.search);
-      const selection = params.get("sort");
+      const sort = params.get("sort");
       const keyword = params.get("keyword");
 
       // Display the form data
       const cardContainer = document.getElementById("card-container");
 
-      fetch(`${fetchUrl}api/${selection}?keyword=${keyword}`)
+      fetch(`${fetchUrl}api/${sort}?keyword=${keyword}`)
         .then((response) => {
           if (!response.ok) {
             throw new Error("Network response was not ok");
