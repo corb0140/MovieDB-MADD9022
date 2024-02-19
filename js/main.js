@@ -81,7 +81,7 @@ const APP = {
 
   serviceWorker: () => {
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("../sw.js").then((registration) => {
+      navigator.serviceWorker.register("./sw.js").then((registration) => {
         console.warn("ServiceWorker registered ", registration);
       });
     }
