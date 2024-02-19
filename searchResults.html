@@ -16,14 +16,57 @@
 
     <main>
       <h2>Search Results</h2>
+      <a href="./index.html">Back to search</a>
 
-      <!-- <div class="movies-container">
-        <ul class="container card-container">
-          APPEND MOVIES HERE
+      <div class="movies-container">
+        <ul class="container" id="card-container">
+          <!-- APPEND MOVIES HERE -->
         </ul>
       </div>
-    </main> -->
+    </main>
 
+    <script>
+      const fetchUrl = "https://moviedb-6n0o.onrender.com/";
+
+      // Get form data from URL query string
+      const params = new URLSearchParams(window.location.search);
+      const selection = params.get("selection");
+      const keyword = params.get("keyword");
+
+      // Display the form data
+      const cardContainer = document.getElementById("card-container");
+
+      fetch(`${fetchUrl}api/${selection}?keyword=${keyword}`)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.json();
+        })
+        .then(({ data }) => {
+          console.log(data);
+          cardContainer.innerHTML = "";
+          console.log(data);
+          let li = document.createElement("li");
+          let list = new DocumentFragment();
+          data.forEach((movie) => {
+            li.innerHTML += `
+                <div class="card">
+                    <div class="card-img">
+                    <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" alt="${movie.title}" />
+                    </div>
+                    <div class="card-content">
+                    <h2>${movie.title}</h2>
+
+                    <img src="./img/movie.svg" alt="movie icon" />
+                    </div>
+                </div>
+              `;
+            list.appendChild(li);
+          });
+          cardContainer.appendChild(list);
+        });
+    </script>
     <!-- <script src="./js/main.js"></script> -->
   </body>
 </html>

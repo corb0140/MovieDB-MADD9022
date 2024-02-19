@@ -10,66 +10,65 @@ const APP = {
   init: function () {
     APP.serviceWorker();
 
-    APP.searchForm.addEventListener("submit", (ev) => {
-      ev.preventDefault();
+    if (window.location.pathname === "/index.html") {
+      APP.searchForm.addEventListener("submit", (ev) => {
+        ev.preventDefault();
 
-      if (APP.selectOption.value === "popularity") {
-        APP.selection = "popularity";
-      } else if (APP.selectOption.value === "release-date") {
-        APP.selection = "release-date";
-      } else if (APP.selectOption.value === "vote") {
-        APP.selection = "vote";
-      }
+        if (APP.selectOption.value === "popularity") {
+          APP.selection = "popularity";
+        } else if (APP.selectOption.value === "release-date") {
+          APP.selection = "release-date";
+        } else if (APP.selectOption.value === "vote") {
+          APP.selection = "vote";
+        }
 
-      // fetch movies
-      APP.fetchMovies(APP.selection, APP.search.value);
+        // fetch movies
+        // APP.fetchMovies(APP.selection, APP.search.value);
 
-      APP.searchForm.reset();
-    });
+        //  redirect to searchResults.html
+        window.location.href = `./searchResults.html?selection=${APP.selection}&keyword=${APP.search.value}`;
 
+        // clear form
+        APP.searchForm.reset();
+      });
+    }
     // Online/Offline
-    APP.online();
-    APP.offline();
+    // APP.online();
+    // APP.offline();
 
     // CONNECTED
     console.log("CONNECTED");
   },
 
   fetchMovies: (selection, keyword) => {
-    fetch(`${APP.fetchUrl}api/${selection}?keyword=${keyword}`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-
-        return response.json();
-      })
-      .then(({ data }) => {
-        console.log(data);
-        APP.cardContainer.innerHTML = "";
-
-        console.log(data);
-        let li = document.createElement("li");
-        let list = new DocumentFragment();
-
-        data.forEach((movie) => {
-          li.innerHTML += `
-              <div class="card">
-                  <div class="card-img">
-                  <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" alt="${movie.title}" />
-                  </div>
-
-                  <div class="card-content">
-                  <h2>${movie.title}</h2>
-                  </div>
-              </div>
-            `;
-
-          list.appendChild(li);
-        });
-
-        APP.cardContainer.appendChild(list);
-      });
+    // fetch(`${APP.fetchUrl}api/${selection}?keyword=${keyword}`)
+    //   .then((response) => {
+    //     if (!response.ok) {
+    //       throw new Error("Network response was not ok");
+    //     }
+    //     return response.json();
+    //   })
+    //   .then(({ data }) => {
+    //     console.log(data);
+    //     APP.cardContainer.innerHTML = "";
+    //     console.log(data);
+    //     let li = document.createElement("li");
+    //     let list = new DocumentFragment();
+    //     data.forEach((movie) => {
+    //       li.innerHTML += `
+    //           <div class="card">
+    //               <div class="card-img">
+    //               <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" alt="${movie.title}" />
+    //               </div>
+    //               <div class="card-content">
+    //               <h2>${movie.title}</h2>
+    //               </div>
+    //           </div>
+    //         `;
+    //       list.appendChild(li);
+    //     });
+    //     APP.cardContainer.appendChild(list);
+    //   });
   },
 
   searchResults: () => {},
@@ -83,7 +82,7 @@ const APP = {
   serviceWorker: () => {
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("../sw.js").then((registration) => {
-        // console.warn("ServiceWorker registered ", registration);
+        console.warn("ServiceWorker registered ", registration);
       });
     }
   },
