@@ -4,7 +4,6 @@ const APP = {
   selectOption: document.querySelector(".selectOption"),
   selection: null,
   cardContainer: document.querySelector(".card-container"),
-  h1: document.querySelector("h1"),
 
   init: function () {
     APP.serviceWorker();
@@ -21,15 +20,11 @@ const APP = {
       }
 
       //  redirect to searchResults.html
-      window.location.href = `./searchResults.html?selection=${APP.selection}&keyword=${APP.search.value}`;
+      window.location.href = `./searchResults.html?sort=${APP.selection}&keyword=${APP.search.value}`;
 
       // clear form
       APP.searchForm.reset();
     });
-
-    // Online/Offline
-    // APP.online();
-    // APP.offline();
 
     // CONNECTED
     console.log("CONNECTED");
@@ -52,18 +47,6 @@ const APP = {
   receiveMessage: () => {
     navigator.serviceWorker.addEventListener("message", (ev) => {
       console.log("Message received from service worker", ev.data);
-    });
-  },
-
-  online: () => {
-    window.addEventListener("online", () => {
-      APP.h1.textContent = "PWA App Online";
-    });
-  },
-
-  offline: () => {
-    window.addEventListener("offline", () => {
-      APP.h1.textContent = "PWA App Offline";
     });
   },
 };

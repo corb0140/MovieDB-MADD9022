@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <link rel="stylesheet" href="./css/main.css" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -37,7 +38,7 @@
 
       // Get form data from URL query string
       const params = new URLSearchParams(window.location.search);
-      const selection = params.get("selection");
+      const selection = params.get("sort");
       const keyword = params.get("keyword");
 
       // Display the form data
@@ -53,7 +54,7 @@
         .then(({ data }) => {
           console.log(data);
           cardContainer.innerHTML = "";
-          console.log(data);
+
           let li = document.createElement("li");
           let list = new DocumentFragment();
           data.forEach((movie) => {

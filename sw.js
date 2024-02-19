@@ -46,33 +46,39 @@ self.addEventListener("fetch", (ev) => {
     url.pathname.includes("svg") ||
     url.pathname.includes("ico") ||
     url.hostname.includes("image.tmdb.org");
-  let isSearchResults = url.pathname.includes("./searchResults.html");
-  let isDetails = url.pathname.includes("./details.html");
+  // let isSearchResults = url.pathname.includes("./searchResults.html");
+  // let isDetails = url.pathname.includes("./details.html");
 
-  console.log(url);
-  console.log(ev.request);
-  console.log(isAPI);
+  // console.log(url);
+  // console.log(ev.request);
+  // console.log(isAPI);
 
   if (isOnline) {
     // if online, fetch the resource
 
-    if (mode === "navigate") {
-      if (isSearchResults) {
-        ev.respondWith(
-          fetch(ev.request).catch(() => {
-            return caches.match("./404.html");
-          })
-        );
-      }
-    }
+    ev.respondWith(
+      caches
+        .match(ev.request)
+        .then((response) => {
+          if (response) {
+            return response;
+          }
+
+          return fetch(ev.request).then((fetchResponse) => {
+            if (fetchResponse.status > 0 && !fetchResponse.ok)
+              throw Error("no data");
+            return caches.open(cacheName).then((cache) => {
+              cache.put(ev.request, fetchResponse.clone());
+              return fetchResponse;
+            });
+          });
+        })
+        .catch(() => {
+          return caches.match("./404.html");
+        })
+    );
   } else {
     // if offline, respond with cached files
-
-    if (mode === "navigate") {
-      if (isSearchResults) {
-        ev.respondWith(caches.match("./cachesResults.html"));
-      }
-    }
   }
 });
 
