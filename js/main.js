@@ -9,25 +9,24 @@ const APP = {
   init: function () {
     APP.serviceWorker();
 
-    if (window.location.pathname === "./index.html") {
-      APP.searchForm.addEventListener("submit", (ev) => {
-        ev.preventDefault();
+    APP.searchForm.addEventListener("submit", (ev) => {
+      ev.preventDefault();
 
-        if (APP.selectOption.value === "popularity") {
-          APP.selection = "popularity";
-        } else if (APP.selectOption.value === "release-date") {
-          APP.selection = "release-date";
-        } else if (APP.selectOption.value === "vote") {
-          APP.selection = "vote";
-        }
+      if (APP.selectOption.value === "popularity") {
+        APP.selection = "popularity";
+      } else if (APP.selectOption.value === "release-date") {
+        APP.selection = "release-date";
+      } else if (APP.selectOption.value === "vote") {
+        APP.selection = "vote";
+      }
 
-        //  redirect to searchResults.html
-        window.location.href = `./searchResults.html?selection=${APP.selection}&keyword=${APP.search.value}`;
+      //  redirect to searchResults.html
+      window.location.href = `./searchResults.html?selection=${APP.selection}&keyword=${APP.search.value}`;
 
-        // clear form
-        APP.searchForm.reset();
-      });
-    }
+      // clear form
+      APP.searchForm.reset();
+    });
+
     // Online/Offline
     // APP.online();
     // APP.offline();
@@ -58,13 +57,13 @@ const APP = {
 
   online: () => {
     window.addEventListener("online", () => {
-      APP.h1.textContent = "Online";
+      APP.h1.textContent = "PWA App Online";
     });
   },
 
   offline: () => {
     window.addEventListener("offline", () => {
-      APP.h1.textContent = "Offline";
+      APP.h1.textContent = "PWA App Offline";
     });
   },
 };

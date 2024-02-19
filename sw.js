@@ -46,8 +46,8 @@ self.addEventListener("fetch", (ev) => {
     url.pathname.includes("svg") ||
     url.pathname.includes("ico") ||
     url.hostname.includes("image.tmdb.org");
-  let isSearchResults = url.pathname.includes("searchResults.html");
-  let isDetails = url.pathname.includes("details.html");
+  let isSearchResults = url.pathname.includes("./searchResults.html");
+  let isDetails = url.pathname.includes("./details.html");
 
   console.log(url);
   console.log(ev.request);
