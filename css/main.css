@@ -148,40 +148,26 @@ h1 {
 }
 
 h2 {
-  font-size: 1.602rem;
+  font-size: 1.402rem;
 }
 
-h3 {
-  font-size: 1.424rem;
-}
-
-h4 {
-  font-size: 1.266rem;
-}
-
-h5 {
-  font-size: 1.125rem;
-}
-
-@media only screen and (min-width: 45em) {
+@media only screen and (min-width: 55em) {
   h1 {
     font-size: 2.488rem;
   }
 
   h2 {
+    font-size: 1.605rem;
+  }
+}
+
+@media only screen and (min-width: 70em) {
+  h1 {
+    font-size: 3.052rem;
+  }
+
+  h2 {
     font-size: 2.074rem;
-  }
-
-  h3 {
-    font-size: 1.728rem;
-  }
-
-  h4 {
-    font-size: 1.44rem;
-  }
-
-  h5 {
-    font-size: 1.2rem;
   }
 }
 
@@ -239,6 +225,12 @@ input,
 }
 
 /* ---------- Search Reults Styles ---------- */
+
+.backBtn,
+.searchResults-title {
+  text-transform: uppercase;
+  color: var(--off-white-color);
+}
 
 ul {
   margin: 0;
@@ -305,7 +297,7 @@ li {
   }
 }
 
-@media only screen and (min-width: 65em) {
+@media only screen and (min-width: 70em) {
   .card {
     width: 30rem;
     height: 25rem;
