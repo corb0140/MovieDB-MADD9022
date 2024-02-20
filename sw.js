@@ -1,4 +1,4 @@
-const version = "1";
+const version = "2";
 const cacheName = `MovieDB-v${version}`;
 const staticAssets = [
   "./",
@@ -35,7 +35,6 @@ self.addEventListener("activate", async (ev) => {
 self.addEventListener("fetch", (ev) => {
   let mode = ev.request.mode;
   let url = new URL(ev.request.url);
-  const isAPI = url.hostname.includes("render.com");
   let isOnline = navigator.onLine; // determine if the browser is currently offline
   let isImage =
     url.pathname.includes("png") ||
@@ -46,12 +45,8 @@ self.addEventListener("fetch", (ev) => {
     url.pathname.includes("svg") ||
     url.pathname.includes("ico") ||
     url.hostname.includes("image.tmdb.org");
-  // let isSearchResults = url.pathname.includes("./searchResults.html");
+  let isSearchResults = url.pathname.includes("/searchResults.html");
   // let isDetails = url.pathname.includes("./details.html");
-
-  // console.log(url);
-  // console.log(ev.request);
-  // console.log(isAPI);
 
   if (isOnline) {
     // if online, fetch the resource
@@ -79,7 +74,10 @@ self.addEventListener("fetch", (ev) => {
     );
   } else {
     // if offline, respond with cached files
+    if (mode === "navigate") {
+      if (isSearchResults) {
+        ev.respondWith(caches.match("./cacheResults.html"));
+      }
+    }
   }
 });
-
-self.addEventListener("message", (ev) => {});

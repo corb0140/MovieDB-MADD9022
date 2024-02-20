@@ -37,18 +37,6 @@ const APP = {
       });
     }
   },
-
-  sendMessage: (message) => {
-    navigator.serviceWorker.ready.then((reg) => {
-      reg.active.postMessage(message);
-    });
-  },
-
-  receiveMessage: () => {
-    navigator.serviceWorker.addEventListener("message", (ev) => {
-      console.log("Message received from service worker", ev.data);
-    });
-  },
 };
 
 document.addEventListener("DOMContentLoaded", APP.init);
