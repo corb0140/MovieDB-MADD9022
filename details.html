@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self';
+      style-src 'self' fonts.googleapis.com;
+      script-src 'self' 'unsafe-inline';
+      font-src fonts.gstatic.com;
+      img-src *;
+      connect-src 'self' moviedb-6n0o.onrender.com;
+    "
+    />
+
+    <link rel="stylesheet" href="./css/main.css" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap"
+      rel="stylesheet"
+    />
+
+    <title>Details Page</title>
+
+    <fest" href="./manifest.json" />
+    <link rel="mask-icon" href="./img/safari-pinned-tab.svg" color="#5bbad5" />
+    <link rel="shortcut icon" href="./img/favicon.ico" />
+    <meta name="msapplication-TileColor" content="#2b5797" />
+    <meta name="msapplication-config" content="./img/browserconfig.xml" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="theme-color" content="#ffffff" />
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <h1>Movie Night</h1>
+      </div>
+    </header>
+
+    <main>
+      <a href="./index.html" class="backBtn">Back to home</a>
+
+      <div class="movies-container">
+        <div class="container" id="card-container">
+          <!-- APPEND MOVIES HERE -->
+        </div>
+      </div>
+    </main>
+
+    <script>
+      const fetchUrl = "https://moviedb-6n0o.onrender.com/";
+
+      // Get form data from URL query string
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get("id");
+
+      // Display the form data
+      const cardContainer = document.getElementById("card-container");
+
+      fetch(`${fetchUrl}api/id/${id}`)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.json();
+        })
+        .then(({ data }) => {
+          console.log(data);
+          cardContainer.innerHTML = "";
+
+          let detailsCard = document.createElement("div");
+          detailsCard.classList.add("details-card");
+
+          detailsCard.innerHTML = `
+           <h2>${data.title}</h2>
+
+            <div class="details-card--img">
+                <img src="https://image.tmdb.org/t/p/w500${data.poster_path}" alt="${data.title}" />
+            </div>
+
+            <div class="details-card--content">
+                <p>${data.overview}</p>
+                <p>Release Date: ${data.release_date}</p>
+                <p>Vote Average: ${data.vote_average}</p>
+            </div>
+            `;
+
+          cardContainer.appendChild(detailsCard);
+        });
+    </script>
+  </body>
+</html>

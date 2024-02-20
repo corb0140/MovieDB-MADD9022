@@ -33,6 +33,8 @@ body {
 
   display: flex;
   flex-direction: column;
+
+  background-color: var(--dominant-color);
 }
 
 /* Update default margin */
@@ -238,7 +240,7 @@ ul {
 
 li {
   --cols: 1;
-  list-style: none;
+  list-style-type: none;
   display: grid;
   grid-template-columns: repeat(var(--cols), 1fr);
   gap: 1.5rem;
@@ -253,6 +255,8 @@ li {
   width: 25rem;
   height: 20rem;
   position: relative;
+
+  cursor: pointer;
 }
 
 .card-img {
@@ -302,4 +306,27 @@ li {
     width: 30rem;
     height: 25rem;
   }
+}
+
+/* ---------- Details Styles ---------- */
+.details-card {
+  padding-top: 0.8rem;
+
+  display: grid;
+  gap: 0.855rem;
+  color: var(--off-white-color);
+}
+
+.details-card h2 {
+  margin: 0;
+}
+
+.details-card--img {
+  aspect-ratio: 16 / 9;
+}
+
+.details-card--img img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }

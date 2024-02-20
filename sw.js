@@ -50,28 +50,29 @@ self.addEventListener("fetch", (ev) => {
 
   if (isOnline) {
     // if online, fetch the resource
+    if (isImage) {
+      ev.respondWith(
+        caches
+          .match(ev.request)
+          .then((response) => {
+            if (response) {
+              return response;
+            }
 
-    ev.respondWith(
-      caches
-        .match(ev.request)
-        .then((response) => {
-          if (response) {
-            return response;
-          }
-
-          return fetch(ev.request).then((fetchResponse) => {
-            if (fetchResponse.status > 0 && !fetchResponse.ok)
-              throw Error("no data");
-            return caches.open(cacheName).then((cache) => {
-              cache.put(ev.request, fetchResponse.clone());
-              return fetchResponse;
+            return fetch(ev.request).then((fetchResponse) => {
+              if (fetchResponse.status > 0 && !fetchResponse.ok)
+                throw Error("no data");
+              return caches.open(cacheName).then((cache) => {
+                cache.put(ev.request, fetchResponse.clone());
+                return fetchResponse;
+              });
             });
-          });
-        })
-        .catch(() => {
-          return caches.match("./404.html");
-        })
-    );
+          })
+          .catch(() => {
+            return caches.match("./404.html");
+          })
+      );
+    }
   } else {
     // if offline, respond with cached files
     if (mode === "navigate") {

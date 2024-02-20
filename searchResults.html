@@ -59,7 +59,7 @@
 
     <main>
       <h2 class="searchResults-title">Search Results</h2>
-      <a href="./index.html" class="backBtn">Back to search</a>
+      <a href="./index.html" class="backBtn">Back to home</a>
 
       <div class="movies-container">
         <ul class="container" id="card-container">
@@ -94,12 +94,13 @@
           let list = new DocumentFragment();
           data.forEach((movie) => {
             li.innerHTML += `
-                <div class="card">
+                <div class="card" data-id=${movie.id}>
                     <div class="card-img">
                     <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" alt="${movie.title}" />
                     </div>
                     <div class="card-content">
                     <h2>${movie.title}</h2>
+                  
 
                     <img src="./img/movie.svg" alt="movie icon" />
                     </div>
@@ -109,6 +110,16 @@
           });
           cardContainer.appendChild(list);
         });
+
+      // add onclick event listener to each card
+      cardContainer.addEventListener("click", (ev) => {
+        const target = ev.target.closest(".card");
+        const id = target.getAttribute("data-id");
+
+        if (id) {
+          window.location.href = `./details.html?id=${id}`;
+        }
+      });
     </script>
   </body>
 </html>
