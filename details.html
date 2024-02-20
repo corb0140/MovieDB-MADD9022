@@ -16,6 +16,7 @@
     />
 
     <link rel="stylesheet" href="./css/main.css" />
+    <script src="./js/main.js" type="module"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -45,52 +46,10 @@
       <a href="./index.html" class="backBtn">Back to home</a>
 
       <div class="movies-container">
-        <div class="container" id="card-container">
+        <div class="container" id="movie-details--container">
           <!-- APPEND MOVIES HERE -->
         </div>
       </div>
     </main>
-
-    <script>
-      const fetchUrl = "https://moviedb-6n0o.onrender.com/";
-
-      // Get form data from URL query string
-      const params = new URLSearchParams(window.location.search);
-      const id = params.get("id");
-
-      // Display the form data
-      const cardContainer = document.getElementById("card-container");
-
-      fetch(`${fetchUrl}api/id/${id}`)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          return response.json();
-        })
-        .then(({ data }) => {
-          console.log(data);
-          cardContainer.innerHTML = "";
-
-          let detailsCard = document.createElement("div");
-          detailsCard.classList.add("details-card");
-
-          detailsCard.innerHTML = `
-           <h2>${data.title}</h2>
-
-            <div class="details-card--img">
-                <img src="https://image.tmdb.org/t/p/w500${data.poster_path}" alt="${data.title}" />
-            </div>
-
-            <div class="details-card--content">
-                <p>${data.overview}</p>
-                <p>Release Date: ${data.release_date}</p>
-                <p>Vote Average: ${data.vote_average}</p>
-            </div>
-            `;
-
-          cardContainer.appendChild(detailsCard);
-        });
-    </script>
   </body>
 </html>
