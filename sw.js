@@ -1,4 +1,4 @@
-const version = "2";
+const version = "1";
 const cacheName = `MovieDB-v${version}`;
 const moviesCache = `movies-v${version}`;
 const staticAssets = [
@@ -25,7 +25,9 @@ self.addEventListener("activate", async (ev) => {
   ev.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
-        keys.filter((key) => key !== cacheName).map((key) => caches.delete(key))
+        keys
+          .filter((key) => key !== cacheName && moviesCache)
+          .map((key) => caches.delete(key))
       );
     })
   );
@@ -48,6 +50,7 @@ self.addEventListener("fetch", (ev) => {
     url.hostname.includes("image.tmdb.org");
   let isSearchResults = url.pathname.includes("/searchResults.html");
   let isAPI = url.pathname.startsWith("/api/id");
+  let isCSS = url.pathname.endsWith(".css");
 
   if (isOnline) {
     // if online, fetch the resource
@@ -99,5 +102,30 @@ self.addEventListener("fetch", (ev) => {
         ev.respondWith(caches.match("./cacheResults.html"));
       }
     }
+  }
+});
+
+self.addEventListener("message", (ev) => {
+  if (ev.data.cache === "movieCache") {
+    // Retrieve cached movie details and send them to cacheResults.html
+    caches.open(moviesCache).then((cache) => {
+      return cache
+        .keys()
+        .then((keys) => {
+          return Promise.all(
+            keys.map((key) => {
+              return cache.match(key).then((response) => {
+                if (response) {
+                  return response.json();
+                }
+              });
+            })
+          );
+        })
+        .then((cachedMovies) => {
+          // Send cached movie details to cacheResults.html
+          ev.source.postMessage({ movies: cachedMovies });
+        });
+    });
   }
 });
