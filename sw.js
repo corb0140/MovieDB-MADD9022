@@ -1,5 +1,6 @@
 const version = "2";
 const cacheName = `MovieDB-v${version}`;
+const moviesCache = `movies-v${version}`;
 const staticAssets = [
   "./",
   "./index.html",
@@ -46,7 +47,7 @@ self.addEventListener("fetch", (ev) => {
     url.pathname.includes("ico") ||
     url.hostname.includes("image.tmdb.org");
   let isSearchResults = url.pathname.includes("/searchResults.html");
-  // let isDetails = url.pathname.includes("./details.html");
+  let isAPI = url.pathname.startsWith("/api/id");
 
   if (isOnline) {
     // if online, fetch the resource
@@ -71,6 +72,24 @@ self.addEventListener("fetch", (ev) => {
           .catch(() => {
             return caches.match("./404.html");
           })
+      );
+    }
+
+    // store api responses for movie details in a separate cache
+    if (isAPI) {
+      ev.respondWith(
+        caches.match(ev.request).then((response) => {
+          if (response) {
+            return response;
+          }
+
+          return fetch(ev.request).then((response) => {
+            return caches.open(moviesCache).then((cache) => {
+              cache.put(ev.request, response.clone());
+              return response;
+            });
+          });
+        })
       );
     }
   } else {
