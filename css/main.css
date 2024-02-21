@@ -335,3 +335,14 @@ li {
 .cache-h2 {
   color: var(--off-white-color);
 }
+
+/* ---------- 404 Styles ---------- */
+.error404-h2 {
+  color: var(--off-white-color);
+  font-size: 3.5rem;
+}
+
+.error404-p {
+  color: var(--off-white-color);
+  font-size: 1.5rem;
+}

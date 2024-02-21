@@ -98,7 +98,7 @@ self.addEventListener("fetch", function (ev) {
       );
     }
   } else {
-    // if offline, respond with cached files
+    // if offline, show cacheResults.html if user is on searchResults.html
     if (mode === "navigate") {
       if (isSearchResults) {
         ev.respondWith(caches.match("./cacheResults.html"));
@@ -109,7 +109,7 @@ self.addEventListener("fetch", function (ev) {
 
 self.addEventListener("message", (ev) => {
   if (ev.data.cache === "movieCache") {
-    // Retrieve cached movie details and send them to cacheResults.html
+    // Retrieve cached movie details
     caches.open(moviesCache).then((cache) => {
       return cache
         .keys()
@@ -125,7 +125,7 @@ self.addEventListener("message", (ev) => {
           );
         })
         .then((cachedMovies) => {
-          // Send cached movie details to cacheResults.html
+          // Send cached movie details to main
           ev.source.postMessage({ movies: cachedMovies });
         });
     });

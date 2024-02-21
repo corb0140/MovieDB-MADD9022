@@ -33,8 +33,6 @@ const APP = {
     // call switchPages after setting searchResults url + query
     APP.switchPages();
 
-    // APP.sendMessage();
-
     // CONNECTED
     console.log("CONNECTED");
   },
@@ -79,9 +77,11 @@ const APP = {
       let id = params.get("id");
       APP.fetchMovies(id);
     } else if (page.endsWith("index.html")) {
-      // console.log("index page");
+      console.log("home page");
+    } else if (page.endsWith("/404.html")) {
     } else {
       window.location.href = "./404.html";
+      return;
     }
   },
 
@@ -143,7 +143,7 @@ const APP = {
 
   cacheResults: () => {
     navigator.serviceWorker.ready.then((reg) => {
-      // console.log("Message sent to service worker");
+      console.log("Message sent to service worker");
       reg.active.postMessage({ cache: "movieCache" });
     });
 
@@ -180,7 +180,7 @@ const APP = {
   serviceWorker: () => {
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("./sw.js").then((reg) => {
-        // console.log("ServiceWorker registered ", reg);
+        console.log("ServiceWorker registered ", reg);
 
         // display cached results when offline
         APP.cacheResults();
