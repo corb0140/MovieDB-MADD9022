@@ -10,11 +10,12 @@
       script-src 'self' 'unsafe-inline';
       font-src fonts.gstatic.com;
       img-src *;
-      connect-src 'self' moviedb-6n0o.onrender.com;"
+      connect-src 'self' moviedb-6n0o.onrender.com;
+    "
     />
 
     <link rel="stylesheet" href="./css/main.css" />
-    <script src="./js/main.js"></script>
+    <script src="./js/main.js" type="module"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -22,7 +23,8 @@
       href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap"
       rel="stylesheet"
     />
-    <title>Cached Results</title>
+
+    <title>Cache Results</title>
 
     <link
       rel="apple-touch-icon"
@@ -47,6 +49,7 @@
     <meta name="msapplication-TileColor" content="#2b5797" />
     <meta name="msapplication-config" content="./img/browserconfig.xml" />
     <meta name="theme-color" content="#ffffff" />
+    <meta name="theme-color" content="#ffffff" />
   </head>
   <body>
     <header>
@@ -56,58 +59,13 @@
     </header>
 
     <main>
-      <h2>cached results</h2>
+      <h2 class="cache-h2">cached results</h2>
 
       <div class="movies-container">
-        <ul class="container" id="card-container">
+        <ul class="container" id="cache-container">
           <!-- APPEND MOVIES HERE -->
         </ul>
       </div>
     </main>
-
-    <script>
-      const cardContainer = document.getElementById("card-container");
-
-      if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.ready.then((reg) => {
-          console.log("Message sent to service worker");
-          reg.active.postMessage({ cache: "movieCache" });
-        });
-      }
-
-      navigator.serviceWorker.addEventListener("message", (ev) => {
-        if (ev.data.movies.length === 0) {
-          cardContainer.innerHTML = "<h2>No movies found</h2>";
-          return;
-        }
-
-        if (ev.data && ev.data.movies) {
-          const movies = ev.data.movies;
-
-          cardContainer.innerHTML = "";
-
-          let li = document.createElement("li");
-          let list = new DocumentFragment();
-
-          movies.forEach((movie) => {
-            li.innerHTML += `
-                <div class="card" data-id=${movie.data.id}>
-                    <div class="card-img">
-                    <img src="https://image.tmdb.org/t/p/w500${movie.data.poster_path}" alt="${movie.data.title}" />
-                    </div>
-                    <div class="card-content">
-                    <h2>${movie.data.title}</h2>
-
-
-                    <img src="./img/movie.svg" alt="movie icon" />
-                    </div>
-                </div>
-              `;
-            list.appendChild(li);
-          });
-          cardContainer.appendChild(list);
-        }
-      });
-    </script>
   </body>
 </html>

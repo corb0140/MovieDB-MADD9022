@@ -330,3 +330,8 @@ li {
   height: 100%;
   object-fit: contain;
 }
+
+/* ---------- Cache Styles ---------- */
+.cache-h2 {
+  color: var(--off-white-color);
+}

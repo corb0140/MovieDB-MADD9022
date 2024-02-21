@@ -35,10 +35,13 @@ self.addEventListener("activate", async (ev) => {
 
 //
 
-self.addEventListener("fetch", (ev) => {
+self.addEventListener("fetch", function (ev) {
   let mode = ev.request.mode;
   let url = new URL(ev.request.url);
   let isOnline = navigator.onLine; // determine if the browser is currently offline
+  let isIndex = url.pathname.includes("/index.html");
+  let isCSS = url.pathname.endsWith(".css");
+  let isJS = url.pathname.endsWith(".js");
   let isImage =
     url.pathname.includes("png") ||
     url.pathname.includes("jpg") ||
@@ -50,11 +53,10 @@ self.addEventListener("fetch", (ev) => {
     url.hostname.includes("image.tmdb.org");
   let isSearchResults = url.pathname.includes("/searchResults.html");
   let isAPI = url.pathname.startsWith("/api/id");
-  let isCSS = url.pathname.endsWith(".css");
 
   if (isOnline) {
     // if online, fetch the resource
-    if (isImage) {
+    if (isImage || isIndex || isCSS || isJS) {
       ev.respondWith(
         caches
           .match(ev.request)

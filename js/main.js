@@ -4,6 +4,7 @@ const APP = {
   selectOption: document.querySelector(".selectOption"),
   selection: null,
   cardContainer: document.querySelector("#card-container"),
+  cacheContainer: document.querySelector("#cache-container"),
   detailsContainer: document.querySelector("#movie-details--container"),
   fetchUrl: "https://moviedb-6n0o.onrender.com/",
 
@@ -32,6 +33,8 @@ const APP = {
     // call switchPages after setting searchResults url + query
     APP.switchPages();
 
+    // APP.sendMessage();
+
     // CONNECTED
     console.log("CONNECTED");
   },
@@ -46,7 +49,7 @@ const APP = {
           return response.json();
         })
         .then(({ data }) => {
-          console.log(data);
+          // console.log(data);
           APP.searchResults(data);
         });
     } else {
@@ -64,13 +67,9 @@ const APP = {
   },
 
   switchPages: () => {
-    console.log("switching pages");
     let url = new URL(window.location.href);
     let page = url.pathname;
     let params = new URLSearchParams(url.search);
-
-    console.log(url, page);
-    console.log(params.get("sort"), params.get("keyword"));
 
     if (page.endsWith("searchResults.html")) {
       let sort = params.get("sort");
@@ -79,6 +78,10 @@ const APP = {
     } else if (page.endsWith("details.html")) {
       let id = params.get("id");
       APP.fetchMovies(id);
+    } else if (page.endsWith("index.html")) {
+      // console.log("index page");
+    } else {
+      window.location.href = "./404.html";
     }
   },
 
@@ -138,17 +141,52 @@ const APP = {
     APP.detailsContainer.appendChild(detailsCard);
   },
 
+  cacheResults: () => {
+    navigator.serviceWorker.ready.then((reg) => {
+      // console.log("Message sent to service worker");
+      reg.active.postMessage({ cache: "movieCache" });
+    });
+
+    navigator.serviceWorker.addEventListener("message", (ev) => {
+      if (ev.data && ev.data.movies) {
+        APP.cacheContainer.innerHTML = "";
+
+        const movies = ev.data.movies;
+
+        let li = document.createElement("li");
+        let list = new DocumentFragment();
+
+        movies.forEach((movie) => {
+          li.innerHTML += `
+        <div class="card" data-id=${movie.data.id}>
+            <div class="card-img">
+            <img src="https://image.tmdb.org/t/p/w500${movie.data.poster_path}" alt="${movie.data.title}" />
+            </div>
+            <div class="card-content">
+            <h2>${movie.data.title}</h2>
+
+
+            <img src="./img/movie.svg" alt="movie icon" />
+            </div>
+        </div>
+              `;
+          list.appendChild(li);
+        });
+        APP.cacheContainer.appendChild(list);
+      }
+    });
+  },
+
   serviceWorker: () => {
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("./sw.js").then((registration) => {
-        console.warn("ServiceWorker registered ", registration);
+      navigator.serviceWorker.register("./sw.js").then((reg) => {
+        // console.log("ServiceWorker registered ", reg);
+
+        // display cached results when offline
+        APP.cacheResults();
       });
     }
   },
-
-  sendMessage: (message) => {},
-
-  receiveMessage: (message) => {},
 };
 
 document.addEventListener("DOMContentLoaded", APP.init);
