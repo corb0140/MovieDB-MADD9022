@@ -9,8 +9,13 @@ const APP = {
 
   init: () => {
     APP.serviceWorker();
+
     console.log(window.location.pathname);
-    if (window.location.pathname === "./") {
+
+    if (
+      window.location.pathname === "/index.html" ||
+      window.location.pathname === "/MovieDB-MADD9022/"
+    ) {
       APP.searchForm.addEventListener("submit", (ev) => {
         ev.preventDefault();
 
