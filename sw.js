@@ -1,4 +1,4 @@
-const version = "5";
+const version = "4";
 const cacheName = `MovieDB-v${version}`;
 const moviesCache = `movies-v${version}`;
 const staticAssets = [
@@ -10,7 +10,10 @@ const staticAssets = [
   "./details.html",
   "./js/main.js",
   "./css/main.css",
+  "./manifest.json",
+  "https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap",
 ];
+
 self.addEventListener("install", (ev) => {
   // cache static files
   ev.waitUntil(
@@ -39,9 +42,6 @@ self.addEventListener("fetch", function (ev) {
   let mode = ev.request.mode;
   let url = new URL(ev.request.url);
   let isOnline = navigator.onLine; // determine if the browser is currently offline
-  let isIndex = url.pathname.includes("/index.html");
-  let isCSS = url.pathname.endsWith(".css");
-  let isJS = url.pathname.endsWith(".js");
   let isImage =
     url.pathname.includes("png") ||
     url.pathname.includes("jpg") ||
@@ -53,98 +53,30 @@ self.addEventListener("fetch", function (ev) {
     url.hostname.includes("image.tmdb.org");
   let isSearchResults = url.pathname.includes("/searchResults.html");
   let isAPI = url.pathname.startsWith("/api/id");
-  let isFont = url.hostname.includes("fonts.googleapis.com");
-  let isManifest = url.pathname.endsWith("manifest.json");
-  let isSocket = url.protocol.startsWith("ws");
 
-  if (isOnline) {
-    // if online, fetch the resource
-    if (isImage || isFont) {
-      ev.respondWith(
-        caches
-          .match(ev.request)
-          .then((response) => {
-            if (response) {
-              return response;
+  ev.respondWith(
+    caches.match(ev.request).then((cacheResponse) => {
+      return (
+        cacheResponse ||
+        fetch(ev.request)
+          .then((fetchResponse) => {
+            if (isOnline) {
+              if (isImage) {
+                let cacheCopy = fetchResponse.clone();
+                return caches.open(cacheName).then((cache) => {
+                  cache.put(ev.request, cacheCopy);
+                });
+              } else if (isAPI) {
+                let cacheCopy = fetchResponse.clone();
+                return caches.open(moviesCache).then((cache) => {
+                  cache.put(ev.request, cacheCopy);
+                });
+              }
+              return fetchResponse;
             }
-
-            return fetch(ev.request).then((fetchResponse) => {
-              if (fetchResponse.status > 0 && !fetchResponse.ok)
-                throw Error("no data");
-              return caches.open(cacheName).then((cache) => {
-                cache.put(ev.request, fetchResponse.clone());
-                return fetchResponse;
-              });
-            });
           })
-          .catch(() => {
-            return caches.match("./404.html");
-          })
+          .catch(() => caches.match("./404.html"))
       );
-    }
-
-    // store api responses for movie details in a separate cache
-    if (isAPI) {
-      ev.respondWith(
-        caches.match(ev.request).then((response) => {
-          if (response) {
-            return response;
-          }
-
-          return fetch(ev.request).then((response) => {
-            return caches.open(moviesCache).then((cache) => {
-              cache.put(ev.request, response.clone());
-              return response;
-            });
-          });
-        })
-      );
-    }
-  } else {
-    // if offline, show cacheResults.html if user is on searchResults.html
-    if (mode === "navigate" && isSearchResults) {
-      ev.respondWith(caches.match("/cacheResults.html"));
-    }
-
-    if (
-      isImage ||
-      isFont ||
-      isCSS ||
-      isJS ||
-      isManifest ||
-      isSocket ||
-      isIndex
-    ) {
-      ev.respondWith(caches.match(ev.request));
-    }
-  }
-});
-
-self.addEventListener("message", (ev) => {
-  if (ev.data.cache === "movieCache") {
-    // Retrieve cached movie details
-    caches.open(moviesCache).then((cache) => {
-      return cache
-        .keys()
-        .then((keys) => {
-          return Promise.all(
-            keys.map((key) => {
-              return cache.match(key).then((response) => {
-                if (response) {
-                  return response.json();
-                }
-              });
-            })
-          );
-        })
-        .then((cachedMovies) => {
-          // Send cached movie details to main
-          clients.matchAll().then((clients) => {
-            clients.forEach((client) => {
-              client.postMessage({ movies: cachedMovies });
-            });
-          });
-        });
-    });
-  }
+    })
+  );
 });

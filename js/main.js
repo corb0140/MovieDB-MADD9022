@@ -10,9 +10,8 @@ const APP = {
   init: () => {
     APP.serviceWorker();
 
-    console.log(window.location.pathname);
-
     if (
+      window.location.pathname === "/" ||
       window.location.pathname === "/index.html" ||
       window.location.pathname === "/MovieDB-MADD9022/"
     ) {
@@ -27,10 +26,6 @@ const APP = {
           APP.selection = "vote";
         }
 
-        console.log(APP.selection);
-        console.log(APP.search.value);
-        console.log(window.location.href);
-
         //  redirect to searchResults.html
         window.location.href = `./searchResults.html?sort=${APP.selection}&keyword=${APP.search.value}`;
 
@@ -41,38 +36,46 @@ const APP = {
     // call switchPages after setting searchResults url + query
     APP.switchPages();
 
-    // display cached results when offline
-    window.addEventListener("offline", APP.cacheResults);
-    // APP.cacheResults();
-
     // CONNECTED
     console.log("CONNECTED");
   },
 
   fetchMovies: (sort, keyword) => {
-    if (sort === "popularity" || sort === "release-date" || sort === "vote") {
-      fetch(`${APP.fetchUrl}api/${sort}?keyword=${keyword}`, { method: "GET" })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          return response.json();
+    if (navigator.onLine) {
+      console.log("Online");
+      if (sort === "popularity" || sort === "release-date" || sort === "vote") {
+        fetch(`${APP.fetchUrl}api/${sort}?keyword=${keyword}`, {
+          method: "GET",
         })
-        .then(({ data }) => {
-          // console.log(data);
-          APP.searchResults(data);
-        });
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            return response.json();
+          })
+          .then(({ data }) => {
+            // console.log(data);
+            APP.searchResults(data);
+          });
+      } else {
+        fetch(`${APP.fetchUrl}api/id/${sort}`)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            return response.json();
+          })
+          .then(({ data }) => {
+            APP.movieDetails(data);
+          })
+          .catch((err) => {
+            console.log("ServiceWorker not ready", err);
+          });
+      }
     } else {
-      fetch(`${APP.fetchUrl}api/id/${sort}`)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          return response.json();
-        })
-        .then(({ data }) => {
-          APP.movieDetails(data);
-        });
+      // fetch cache data from moviesCache
+      console.log("Offline");
+      APP.cacheResults();
     }
   },
 
@@ -88,6 +91,12 @@ const APP = {
     } else if (page.endsWith("/details.html")) {
       let id = params.get("id");
       APP.fetchMovies(id);
+    } else if (page.endsWith("/index.html") || page.endsWith("/")) {
+      console.log("home page");
+    } else if (page.endsWith("404.html")) {
+      return;
+    } else {
+      window.location.href = "./404.html";
     }
   },
 
@@ -148,43 +157,7 @@ const APP = {
   },
 
   cacheResults: () => {
-    console.log("cacheResults");
-    const cacheContainer = document.querySelector("#cache-container");
-    console.log(cacheContainer);
-
-    navigator.serviceWorker.ready.then((reg) => {
-      console.log("Message sent to service worker");
-      reg.active.postMessage({ cache: "movieCache" });
-    });
-
-    navigator.serviceWorker.addEventListener("message", (ev) => {
-      if (ev.data && ev.data.movies) {
-        cacheContainer.innerHTML = "";
-
-        const movies = ev.data.movies;
-
-        let li = document.createElement("li");
-        let list = new DocumentFragment();
-
-        movies.forEach((movie) => {
-          li.innerHTML += `
-        <div class="card" data-id=${movie.data.id}>
-            <div class="card-img">
-            <img src="https://image.tmdb.org/t/p/w500${movie.data.poster_path}" alt="${movie.data.title}" />
-            </div>
-            <div class="card-content">
-            <h2>${movie.data.title}</h2>
-
-
-            <img src="./img/movie.svg" alt="movie icon" />
-            </div>
-        </div>
-              `;
-          list.appendChild(li);
-        });
-        cacheContainer.appendChild(list);
-      }
-    });
+    // if offline, show data from cache
   },
 
   serviceWorker: () => {
