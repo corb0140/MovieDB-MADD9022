@@ -4,7 +4,6 @@ const APP = {
   selectOption: document.querySelector(".selectOption"),
   selection: null,
   cardContainer: document.querySelector("#card-container"),
-  cacheContainer: document.querySelector("#cache-container"),
   detailsContainer: document.querySelector("#movie-details--container"),
   fetchUrl: "https://moviedb-6n0o.onrender.com/",
 
@@ -80,16 +79,17 @@ const APP = {
     } else if (page.endsWith("details.html")) {
       let id = params.get("id");
       APP.fetchMovies(id);
-    } else if (page.endsWith("index.html")) {
-      console.log("home page");
-    } else if (page.endsWith("/")) {
-      window.location.href = "./index.html";
-    } else if (page.endsWith("/404.html")) {
-      console.log("404 page");
-    } else {
-      window.location.href = "./404.html";
-      return;
     }
+    // } else if (page.endsWith("index.html")) {
+    //   console.log("home page");
+    // } else if (page.endsWith("/")) {
+    //   window.location.href = "./index.html";
+    // } else if (page.endsWith("/404.html")) {
+    //   console.log("404 page");
+    // } else {
+    //   window.location.href = "./404.html";
+    //   return;
+    // }
   },
 
   searchResults: (data) => {
@@ -150,6 +150,8 @@ const APP = {
 
   cacheResults: () => {
     console.log("cacheResults");
+    const cacheContainer = document.querySelector("#cache-container");
+    console.log(cacheContainer);
 
     navigator.serviceWorker.ready.then((reg) => {
       console.log("Message sent to service worker");
@@ -158,7 +160,7 @@ const APP = {
 
     navigator.serviceWorker.addEventListener("message", (ev) => {
       if (ev.data && ev.data.movies) {
-        APP.cacheContainer.innerHTML = "";
+        cacheContainer.innerHTML = "";
 
         const movies = ev.data.movies;
 
@@ -181,7 +183,7 @@ const APP = {
               `;
           list.appendChild(li);
         });
-        APP.cacheContainer.appendChild(list);
+        cacheContainer.appendChild(list);
       }
     });
   },

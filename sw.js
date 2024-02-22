@@ -36,6 +36,7 @@ self.addEventListener("activate", async (ev) => {
 //
 
 self.addEventListener("fetch", function (ev) {
+  let mode = ev.request.mode;
   let url = new URL(ev.request.url);
   let isOnline = navigator.onLine; // determine if the browser is currently offline
   let isIndex = url.pathname.includes("/index.html");
@@ -101,8 +102,8 @@ self.addEventListener("fetch", function (ev) {
     }
   } else {
     // if offline, show cacheResults.html if user is on searchResults.html
-    if (isSearchResults) {
-      ev.respondWith(caches.match("./cacheResults.html"));
+    if (mode === "navigate" && isSearchResults) {
+      ev.respondWith(caches.match("/cacheResults.html"));
     }
 
     if (
