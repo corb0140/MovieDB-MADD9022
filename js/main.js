@@ -10,7 +10,7 @@ const APP = {
   init: () => {
     APP.serviceWorker();
 
-    if (window.location.pathname === "/") {
+    if (window.location.pathname === "./") {
       APP.searchForm.addEventListener("submit", (ev) => {
         ev.preventDefault();
 
@@ -21,6 +21,10 @@ const APP = {
         } else if (APP.selectOption.value === "vote") {
           APP.selection = "vote";
         }
+
+        console.log(APP.selection);
+        console.log(APP.search.value);
+        console.log(window.location.href);
 
         //  redirect to searchResults.html
         window.location.href = `./searchResults.html?sort=${APP.selection}&keyword=${APP.search.value}`;
