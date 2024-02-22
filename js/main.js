@@ -10,7 +10,7 @@ const APP = {
   init: () => {
     APP.serviceWorker();
 
-    if (window.location.pathname === "/index.html") {
+    if (window.location.pathname === "./index.html") {
       APP.searchForm.addEventListener("submit", (ev) => {
         ev.preventDefault();
 
