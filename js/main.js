@@ -72,24 +72,23 @@ const APP = {
     let page = url.pathname;
     let params = new URLSearchParams(url.search);
 
-    if (page.endsWith("searchResults.html")) {
+    if (page.endsWith("./searchResults.html")) {
       let sort = params.get("sort");
       let keyword = params.get("keyword");
       APP.fetchMovies(sort, keyword);
-    } else if (page.endsWith("details.html")) {
+    } else if (page.endsWith("./details.html")) {
       let id = params.get("id");
       APP.fetchMovies(id);
+    } else if (page.endsWith("./index.html")) {
+      console.log("home page");
+    } else if (page.endsWith("/")) {
+      window.location.href = "./index.html";
+    } else if (page.endsWith("./404.html")) {
+      console.log("404 page");
+    } else {
+      window.location.href = "./404.html";
+      return;
     }
-    // } else if (page.endsWith("index.html")) {
-    //   console.log("home page");
-    // } else if (page.endsWith("/")) {
-    //   window.location.href = "./index.html";
-    // } else if (page.endsWith("/404.html")) {
-    //   console.log("404 page");
-    // } else {
-    //   window.location.href = "./404.html";
-    //   return;
-    // }
   },
 
   searchResults: (data) => {
