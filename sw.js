@@ -1,4 +1,4 @@
-const version = "1";
+const version = "5";
 const cacheName = `MovieDB-v${version}`;
 const moviesCache = `movies-v${version}`;
 const staticAssets = [
@@ -26,7 +26,7 @@ self.addEventListener("activate", async (ev) => {
     caches.keys().then((keys) => {
       return Promise.all(
         keys
-          .filter((key) => key !== cacheName && moviesCache)
+          .filter((key) => key !== cacheName && key !== moviesCache)
           .map((key) => caches.delete(key))
       );
     })
@@ -36,7 +36,6 @@ self.addEventListener("activate", async (ev) => {
 //
 
 self.addEventListener("fetch", function (ev) {
-  let mode = ev.request.mode;
   let url = new URL(ev.request.url);
   let isOnline = navigator.onLine; // determine if the browser is currently offline
   let isIndex = url.pathname.includes("/index.html");
@@ -53,10 +52,13 @@ self.addEventListener("fetch", function (ev) {
     url.hostname.includes("image.tmdb.org");
   let isSearchResults = url.pathname.includes("/searchResults.html");
   let isAPI = url.pathname.startsWith("/api/id");
+  let isFont = url.hostname.includes("fonts.googleapis.com");
+  let isManifest = url.pathname.endsWith("manifest.json");
+  let isSocket = url.protocol.startsWith("ws");
 
   if (isOnline) {
     // if online, fetch the resource
-    if (isImage || isIndex || isCSS || isJS) {
+    if (isImage || isFont) {
       ev.respondWith(
         caches
           .match(ev.request)
@@ -99,10 +101,20 @@ self.addEventListener("fetch", function (ev) {
     }
   } else {
     // if offline, show cacheResults.html if user is on searchResults.html
-    if (mode === "navigate") {
-      if (isSearchResults) {
-        ev.respondWith(caches.match("./cacheResults.html"));
-      }
+    if (isSearchResults) {
+      ev.respondWith(caches.match("./cacheResults.html"));
+    }
+
+    if (
+      isImage ||
+      isFont ||
+      isCSS ||
+      isJS ||
+      isManifest ||
+      isSocket ||
+      isIndex
+    ) {
+      ev.respondWith(caches.match(ev.request));
     }
   }
 });
@@ -126,7 +138,11 @@ self.addEventListener("message", (ev) => {
         })
         .then((cachedMovies) => {
           // Send cached movie details to main
-          ev.source.postMessage({ movies: cachedMovies });
+          clients.matchAll().then((clients) => {
+            clients.forEach((client) => {
+              client.postMessage({ movies: cachedMovies });
+            });
+          });
         });
     });
   }

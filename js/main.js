@@ -33,6 +33,10 @@ const APP = {
     // call switchPages after setting searchResults url + query
     APP.switchPages();
 
+    // display cached results when offline
+    window.addEventListener("offline", APP.cacheResults);
+    // APP.cacheResults();
+
     // CONNECTED
     console.log("CONNECTED");
   },
@@ -78,7 +82,10 @@ const APP = {
       APP.fetchMovies(id);
     } else if (page.endsWith("index.html")) {
       console.log("home page");
+    } else if (page.endsWith("/")) {
+      window.location.href = "./index.html";
     } else if (page.endsWith("/404.html")) {
+      console.log("404 page");
     } else {
       window.location.href = "./404.html";
       return;
@@ -142,6 +149,8 @@ const APP = {
   },
 
   cacheResults: () => {
+    console.log("cacheResults");
+
     navigator.serviceWorker.ready.then((reg) => {
       console.log("Message sent to service worker");
       reg.active.postMessage({ cache: "movieCache" });
@@ -181,9 +190,6 @@ const APP = {
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("./sw.js").then((reg) => {
         console.log("ServiceWorker registered ", reg);
-
-        // display cached results when offline
-        APP.cacheResults();
       });
     }
   },
