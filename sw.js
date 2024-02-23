@@ -53,31 +53,45 @@ self.addEventListener("fetch", function (ev) {
   let isSearchResults = url.pathname.includes("/searchResults.html");
   let isAPI = url.pathname.startsWith("/api/id");
 
-  ev.respondWith(
-    caches.match(ev.request).then((cacheResponse) => {
-      return (
-        cacheResponse ||
-        fetch(ev.request).then((fetchResponse) => {
-          if (isOnline) {
-            if (isImage) {
-              return caches.open(cacheName).then((cache) => {
-                cache.put(ev.request, fetchResponse.clone());
-              });
-            } else if (isAPI) {
-              return caches.open(moviesCache).then((cache) => {
-                cache.put(ev.request, fetchResponse.clone());
-              });
-            }
-            return fetchResponse;
-          } else {
-            if (isSearchResults) {
-              return caches.match("./cacheResults.html");
-            }
-          }
-        })
-      );
-    })
-  );
+  // cache images to main cache if not in cache
+  if (isImage) {
+    ev.respondWith(
+      caches.match(ev.request).then((cacheResponse) => {
+        return (
+          cacheResponse ||
+          fetch(ev.request).then((fetchResponse) => {
+            return caches.open(cacheName).then((cache) => {
+              cache.put(ev.request, fetchResponse.clone());
+              return fetchResponse;
+            });
+          })
+        );
+      })
+    );
+  }
+
+  // Cache to movie cache if movie not in cache
+  if (isAPI) {
+    ev.respondWith(
+      caches.match(ev.request).then((cacheResponse) => {
+        return (
+          cacheResponse ||
+          fetch(ev.request).then((fetchResponse) => {
+            return caches.open(moviesCache).then((cache) => {
+              cache.put(ev.request, fetchResponse.clone());
+              return fetchResponse;
+            });
+          })
+        );
+      })
+    );
+  }
+
+  if (!isOnline) {
+    if (isSearchResults) {
+      return ev.respondWith(caches.match("./cacheResults.html"));
+    }
+  }
 });
 
 self.addEventListener("message", (ev) => {
@@ -88,7 +102,7 @@ self.addEventListener("message", (ev) => {
         .then((keys) => {
           return Promise.all(
             keys.map((key) => {
-              return cache.match(key).then((response) => {
+              return caches.match(key).then((response) => {
                 return response.json();
               });
             })

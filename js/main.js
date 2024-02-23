@@ -12,9 +12,9 @@ const APP = {
     APP.serviceWorker();
 
     if (
-      window.location.pathname === "./" ||
-      window.location.pathname === "./index.html" ||
-      window.location.pathname === "./MovieDB-MADD9022/"
+      window.location.pathname === "/" ||
+      window.location.pathname === "/index.html" ||
+      window.location.pathname === "/MovieDB-MADD9022/"
     ) {
       APP.searchForm.addEventListener("submit", (ev) => {
         ev.preventDefault();
@@ -97,13 +97,12 @@ const APP = {
   },
 
   searchResults: (data) => {
-    APP.cardContainer.innerHTML = "";
-
     let li = document.createElement("li");
     let list = new DocumentFragment();
+
     data.forEach((movie) => {
       li.innerHTML += `
-        <div class="card" data-id=${movie.id}>
+        <div class="card" data-uid=${movie.id}>
             <div class="card-img">
             <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" alt="${movie.title}" />
             </div>
@@ -121,7 +120,7 @@ const APP = {
     // add onclick event listener to each card
     APP.cardContainer.addEventListener("click", (ev) => {
       const target = ev.target.closest(".card");
-      const id = target.getAttribute("data-id");
+      const id = target.getAttribute("data-uid");
 
       if (id) {
         window.location.href = `./details.html?id=${id}`;
