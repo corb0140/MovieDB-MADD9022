@@ -1,4 +1,4 @@
-const version = "1";
+const version = "3";
 const cacheName = `MovieDB-v${version}`;
 const moviesCache = `movies-v${version}`;
 const staticAssets = [
@@ -53,6 +53,12 @@ self.addEventListener("fetch", function (ev) {
   let isSearchResults = url.pathname.includes("/searchResults.html");
   let isAPI = url.pathname.startsWith("/api/id");
 
+  ev.respondWith(
+    caches.match(ev.request).then((cacheResponse) => {
+      return cacheResponse || fetch(ev.request);
+    })
+  );
+
   // cache images to main cache if not in cache
   if (isImage) {
     ev.respondWith(
@@ -89,7 +95,7 @@ self.addEventListener("fetch", function (ev) {
 
   if (!isOnline) {
     if (isSearchResults) {
-      return ev.respondWith(caches.match("./cacheResults.html"));
+      ev.respondWith(caches.match("./cacheResults.html"));
     }
   }
 });
