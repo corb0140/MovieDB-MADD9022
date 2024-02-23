@@ -4,6 +4,7 @@ const APP = {
   selectOption: document.querySelector(".selectOption"),
   selection: null,
   cardContainer: document.querySelector("#card-container"),
+  cacheContainer: document.querySelector("#cache-container"),
   detailsContainer: document.querySelector("#movie-details--container"),
   fetchUrl: "https://moviedb-6n0o.onrender.com/",
 
@@ -36,46 +37,41 @@ const APP = {
     // call switchPages after setting searchResults url + query
     APP.switchPages();
 
+    APP.cacheResults();
+
     // CONNECTED
     console.log("CONNECTED");
   },
 
   fetchMovies: (sort, keyword) => {
-    if (navigator.onLine) {
-      console.log("Online");
-      if (sort === "popularity" || sort === "release-date" || sort === "vote") {
-        fetch(`${APP.fetchUrl}api/${sort}?keyword=${keyword}`, {
-          method: "GET",
+    if (sort === "popularity" || sort === "release-date" || sort === "vote") {
+      fetch(`${APP.fetchUrl}api/${sort}?keyword=${keyword}`, {
+        method: "GET",
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.json();
         })
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error("Network response was not ok");
-            }
-            return response.json();
-          })
-          .then(({ data }) => {
-            // console.log(data);
-            APP.searchResults(data);
-          });
-      } else {
-        fetch(`${APP.fetchUrl}api/id/${sort}`)
-          .then((response) => {
-            if (!response.ok) {
-              throw new Error("Network response was not ok");
-            }
-            return response.json();
-          })
-          .then(({ data }) => {
-            APP.movieDetails(data);
-          })
-          .catch((err) => {
-            console.log("ServiceWorker not ready", err);
-          });
-      }
+        .then(({ data }) => {
+          // console.log(data);
+          APP.searchResults(data);
+        });
     } else {
-      // fetch cache data from moviesCache
-      console.log("Offline");
-      APP.cacheResults();
+      fetch(`${APP.fetchUrl}api/id/${sort}`)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.json();
+        })
+        .then(({ data }) => {
+          APP.movieDetails(data);
+        })
+        .catch((err) => {
+          console.log("ServiceWorker not ready", err);
+        });
     }
   },
 
@@ -157,7 +153,50 @@ const APP = {
   },
 
   cacheResults: () => {
-    // if offline, show data from cache
+    console.log("cacheResults");
+
+    navigator.serviceWorker.ready.then((reg) => {
+      console.log("Message sent to service worker");
+      reg.active.postMessage({ cache: "movieCache" });
+    });
+
+    navigator.serviceWorker.addEventListener("message", (ev) => {
+      console.log(ev.data.movies);
+
+      APP.cacheContainer.innerHTML = "";
+
+      const movies = ev.data.movies;
+
+      let li = document.createElement("li");
+      let list = new DocumentFragment();
+
+      movies.forEach((movie) => {
+        li.innerHTML += `
+        <div class="card" data-id=${movie.data.id}>
+            <div class="card-img">
+            <img src="https://image.tmdb.org/t/p/w500${movie.data.poster_path}" alt="${movie.data.title}" />
+            </div>
+            <div class="card-content">
+            <h2>${movie.data.title}</h2>
+
+
+            <img src="./img/movie.svg" alt="movie icon" />
+            </div>
+        </div>
+              `;
+        list.appendChild(li);
+      });
+      APP.cacheContainer.appendChild(list);
+
+      APP.cacheContainer.addEventListener("click", (ev) => {
+        const target = ev.target.closest(".card");
+        const id = target.getAttribute("data-id");
+
+        if (id) {
+          window.location.href = `./details.html?id=${id}`;
+        }
+      });
+    });
   },
 
   serviceWorker: () => {

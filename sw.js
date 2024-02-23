@@ -1,4 +1,4 @@
-const version = "4";
+const version = "1";
 const cacheName = `MovieDB-v${version}`;
 const moviesCache = `movies-v${version}`;
 const staticAssets = [
@@ -39,9 +39,8 @@ self.addEventListener("activate", async (ev) => {
 //
 
 self.addEventListener("fetch", function (ev) {
-  let mode = ev.request.mode;
   let url = new URL(ev.request.url);
-  let isOnline = navigator.onLine; // determine if the browser is currently offline
+  let isOnline = navigator.onLine;
   let isImage =
     url.pathname.includes("png") ||
     url.pathname.includes("jpg") ||
@@ -58,25 +57,50 @@ self.addEventListener("fetch", function (ev) {
     caches.match(ev.request).then((cacheResponse) => {
       return (
         cacheResponse ||
-        fetch(ev.request)
-          .then((fetchResponse) => {
-            if (isOnline) {
-              if (isImage) {
-                let cacheCopy = fetchResponse.clone();
-                return caches.open(cacheName).then((cache) => {
-                  cache.put(ev.request, cacheCopy);
-                });
-              } else if (isAPI) {
-                let cacheCopy = fetchResponse.clone();
-                return caches.open(moviesCache).then((cache) => {
-                  cache.put(ev.request, cacheCopy);
-                });
-              }
-              return fetchResponse;
+        fetch(ev.request).then((fetchResponse) => {
+          if (isOnline) {
+            if (isImage) {
+              return caches.open(cacheName).then((cache) => {
+                cache.put(ev.request, fetchResponse.clone());
+              });
+            } else if (isAPI) {
+              return caches.open(moviesCache).then((cache) => {
+                cache.put(ev.request, fetchResponse.clone());
+              });
             }
-          })
-          .catch(() => caches.match("./404.html"))
+            return fetchResponse;
+          } else {
+            if (isSearchResults) {
+              return caches.match("./cacheResults.html");
+            }
+          }
+        })
       );
     })
   );
+});
+
+self.addEventListener("message", (ev) => {
+  if (ev.data.cache === "movieCache") {
+    caches.open(moviesCache).then((cache) => {
+      return cache
+        .keys()
+        .then((keys) => {
+          return Promise.all(
+            keys.map((key) => {
+              return cache.match(key).then((response) => {
+                return response.json();
+              });
+            })
+          );
+        })
+        .then((data) => {
+          if (data) {
+            self.clients.get(ev.source.id).then((client) => {
+              client.postMessage({ movies: data });
+            });
+          }
+        });
+    });
+  }
 });
