@@ -1,4 +1,4 @@
-const version = "3";
+const version = "5";
 const cacheName = `MovieDB-v${version}`;
 const moviesCache = `movies-v${version}`;
 const staticAssets = [
@@ -8,6 +8,10 @@ const staticAssets = [
   "./404.html",
   "./searchResults.html",
   "./details.html",
+  "./manifest.json",
+  "./css/main.css",
+  "./js/main.js",
+  "https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap",
 ];
 
 self.addEventListener("install", (ev) => {
@@ -35,7 +39,6 @@ self.addEventListener("activate", async (ev) => {
 //
 
 self.addEventListener("fetch", function (ev) {
-  let mode = ev.request.mode;
   let url = new URL(ev.request.url);
   let isOnline = navigator.onLine;
   let isImage =
@@ -50,7 +53,6 @@ self.addEventListener("fetch", function (ev) {
   let isAPI = url.pathname.startsWith("/api/id");
   let isFont = url.hostname.includes("fonts.googleapis.com");
   let isCSS = url.pathname.includes(".css");
-  let isJS = url.pathname.includes(".js");
   let isManifest = url.pathname.includes("manifest.json");
   let isIndex =
     url.pathname.endsWith("/") || url.pathname.endsWith("/index.html");
@@ -58,7 +60,7 @@ self.addEventListener("fetch", function (ev) {
 
   if (isOnline) {
     // cache images to main cache if not in cache
-    if (isImage || isFont || isCSS || isJS || isIndex || isManifest) {
+    if (isImage) {
       ev.respondWith(
         caches.match(ev.request).then((cacheResponse) => {
           return (
