@@ -34,44 +34,50 @@ const APP = {
         APP.searchForm.reset();
       });
     }
+
     // call switchPages after setting searchResults url + query
     APP.switchPages();
 
-    APP.cacheResults();
+    if (!navigator.onLine) {
+      // call cache results page if offline
+      APP.cacheResults();
+    }
 
     // CONNECTED
     console.log("CONNECTED");
   },
 
   fetchMovies: (sort, keyword) => {
-    if (sort === "popularity" || sort === "release-date" || sort === "vote") {
-      fetch(`${APP.fetchUrl}api/${sort}?keyword=${keyword}`, {
-        method: "GET",
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          return response.json();
+    if (navigator.onLine) {
+      if (sort === "popularity" || sort === "release-date" || sort === "vote") {
+        fetch(`${APP.fetchUrl}api/${sort}?keyword=${keyword}`, {
+          method: "GET",
         })
-        .then(({ data }) => {
-          // console.log(data);
-          APP.searchResults(data);
-        });
-    } else {
-      fetch(`${APP.fetchUrl}api/id/${sort}`)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          return response.json();
-        })
-        .then(({ data }) => {
-          APP.movieDetails(data);
-        })
-        .catch((err) => {
-          console.log("ServiceWorker not ready", err);
-        });
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            return response.json();
+          })
+          .then(({ data }) => {
+            // console.log(data);
+            APP.searchResults(data);
+          });
+      } else {
+        fetch(`${APP.fetchUrl}api/id/${sort}`)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            return response.json();
+          })
+          .then(({ data }) => {
+            APP.movieDetails(data);
+          })
+          .catch((err) => {
+            console.log("ServiceWorker not ready", err);
+          });
+      }
     }
   },
 
@@ -162,8 +168,6 @@ const APP = {
     navigator.serviceWorker.addEventListener("message", (ev) => {
       console.log(ev.data.movies);
 
-      APP.cacheContainer.innerHTML = "";
-
       const movies = ev.data.movies;
 
       let li = document.createElement("li");
@@ -171,13 +175,12 @@ const APP = {
 
       movies.forEach((movie) => {
         li.innerHTML += `
-        <div class="card" data-id=${movie.data.id}>
+        <div class="card" data-uid=${movie.data.id}>
             <div class="card-img">
             <img src="https://image.tmdb.org/t/p/w500${movie.data.poster_path}" alt="${movie.data.title}" />
             </div>
             <div class="card-content">
             <h2>${movie.data.title}</h2>
-
 
             <img src="./img/movie.svg" alt="movie icon" />
             </div>
@@ -189,7 +192,7 @@ const APP = {
 
       APP.cacheContainer.addEventListener("click", (ev) => {
         const target = ev.target.closest(".card");
-        const id = target.getAttribute("data-id");
+        const id = target.getAttribute("data-uid");
 
         if (id) {
           window.location.href = `./details.html?id=${id}`;

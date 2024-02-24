@@ -1,17 +1,12 @@
-const version = "3";
+const version = "2";
 const cacheName = `MovieDB-v${version}`;
 const moviesCache = `movies-v${version}`;
 const staticAssets = [
   "./",
-  "./index.html",
   "./cacheResults.html",
   "./404.html",
   "./searchResults.html",
   "./details.html",
-  "./js/main.js",
-  "./css/main.css",
-  "./manifest.json",
-  "https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap",
 ];
 
 self.addEventListener("install", (ev) => {
@@ -50,52 +45,66 @@ self.addEventListener("fetch", function (ev) {
     url.pathname.includes("svg") ||
     url.pathname.includes("ico") ||
     url.hostname.includes("image.tmdb.org");
-  let isSearchResults = url.pathname.includes("/searchResults.html");
   let isAPI = url.pathname.startsWith("/api/id");
+  let isIndex =
+    url.pathname.endsWith("/") || url.pathname.endsWith("/index.html");
+  let isFont = url.hostname.includes("fonts.googleapis.com");
+  let isCSS = url.pathname.includes(".css");
+  let isJS = url.pathname.includes(".js");
+  let isManifest = url.pathname.includes("manifest.json");
 
-  ev.respondWith(
-    caches.match(ev.request).then((cacheResponse) => {
-      return cacheResponse || fetch(ev.request);
-    })
-  );
+  console.log(url, isOnline);
 
-  // cache images to main cache if not in cache
-  if (isImage) {
-    ev.respondWith(
-      caches.match(ev.request).then((cacheResponse) => {
-        return (
-          cacheResponse ||
-          fetch(ev.request).then((fetchResponse) => {
-            return caches.open(cacheName).then((cache) => {
-              cache.put(ev.request, fetchResponse.clone());
-              return fetchResponse;
-            });
+  if (isOnline) {
+    // cache images to main cache if not in cache
+    if (isImage || isFont || isCSS || isJS || isIndex || isManifest) {
+      ev.respondWith(
+        caches.match(ev.request).then((cacheResponse) => {
+          return (
+            cacheResponse ||
+            fetch(ev.request)
+              .then((fetchResponse) => {
+                return caches.open(cacheName).then((cache) => {
+                  cache.put(ev.request, fetchResponse.clone());
+                  return fetchResponse;
+                });
+              })
+              .catch(() => {
+                return caches.match("./404.html");
+              })
+          );
+        })
+      );
+    }
+
+    // Cache to movie cache if movie not in cache
+    if (isAPI) {
+      ev.respondWith(
+        caches
+          .match(ev.request)
+          .then((cacheResponse) => {
+            return (
+              cacheResponse ||
+              fetch(ev.request).then((fetchResponse) => {
+                return caches.open(moviesCache).then((cache) => {
+                  cache.put(ev.request, fetchResponse.clone());
+                  return fetchResponse;
+                });
+              })
+            );
           })
-        );
-      })
-    );
-  }
-
-  // Cache to movie cache if movie not in cache
-  if (isAPI) {
-    ev.respondWith(
-      caches.match(ev.request).then((cacheResponse) => {
-        return (
-          cacheResponse ||
-          fetch(ev.request).then((fetchResponse) => {
-            return caches.open(moviesCache).then((cache) => {
-              cache.put(ev.request, fetchResponse.clone());
-              return fetchResponse;
-            });
+          .catch(() => {
+            return caches.match("./404.html");
           })
-        );
-      })
-    );
-  }
-
-  if (!isOnline) {
-    if (isSearchResults) {
-      ev.respondWith(caches.match("./cacheResults.html"));
+      );
+    }
+  } else {
+    if (url.pathname.endsWith("/searchResults.html")) {
+      ev.respondWith(
+        caches.match("./cacheResults.html").then((cacheResponse) => {
+          return cacheResponse || caches.match("./404.html");
+        })
+      );
     }
   }
 });
