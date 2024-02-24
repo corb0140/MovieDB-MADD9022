@@ -12,9 +12,9 @@ const APP = {
     APP.serviceWorker();
 
     if (
-      window.location.pathname === "./" ||
-      window.location.pathname === "./index.html" ||
-      window.location.pathname === "./MovieDB-MADD9022/"
+      window.location.pathname === "/" ||
+      window.location.pathname === "/index.html" ||
+      window.location.pathname === "/MovieDB-MADD9022/"
     ) {
       APP.searchForm.addEventListener("submit", (ev) => {
         ev.preventDefault();
@@ -35,8 +35,8 @@ const APP = {
       });
     }
 
-    // call switchPages after setting searchResults url + query
-    APP.switchPages();
+    // call pageParams after clicking submit button
+    APP.pageParams();
 
     if (!navigator.onLine) {
       // call cache results page if offline
@@ -81,7 +81,7 @@ const APP = {
     }
   },
 
-  switchPages: () => {
+  pageParams: () => {
     let url = new URL(window.location.href);
     let page = url.pathname;
     let params = new URLSearchParams(url.search);
@@ -93,12 +93,6 @@ const APP = {
     } else if (page.endsWith("/details.html")) {
       let id = params.get("id");
       APP.fetchMovies(id);
-    } else if (page.endsWith("/index.html") || page.endsWith("/")) {
-      console.log("home page");
-    } else if (page.endsWith("404.html")) {
-      return;
-    } else {
-      window.location.href = "./404.html";
     }
   },
 

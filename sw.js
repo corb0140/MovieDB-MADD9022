@@ -1,4 +1,4 @@
-const version = "2";
+const version = "1";
 const cacheName = `MovieDB-v${version}`;
 const moviesCache = `movies-v${version}`;
 const staticAssets = [
@@ -52,6 +52,9 @@ self.addEventListener("fetch", function (ev) {
   let isCSS = url.pathname.includes(".css");
   let isJS = url.pathname.includes(".js");
   let isManifest = url.pathname.includes("manifest.json");
+  let isSearchResults = url.pathname.endsWith("/searchResults.html");
+  let isDetails = url.pathname.endsWith("/details.html");
+  let is404 = url.pathname.endsWith("/404.html");
 
   if (isOnline) {
     // cache images to main cache if not in cache
@@ -60,47 +63,45 @@ self.addEventListener("fetch", function (ev) {
         caches.match(ev.request).then((cacheResponse) => {
           return (
             cacheResponse ||
-            fetch(ev.request)
-              .then((fetchResponse) => {
-                return caches.open(cacheName).then((cache) => {
-                  cache.put(ev.request, fetchResponse.clone());
-                  return fetchResponse;
-                });
-              })
-              .catch(() => {
-                return caches.match("./404.html");
-              })
+            fetch(ev.request).then((fetchResponse) => {
+              return caches.open(cacheName).then((cache) => {
+                cache.put(ev.request, fetchResponse.clone());
+                return fetchResponse;
+              });
+            })
           );
         })
       );
+    } else {
+      // if not in cache, return 404 page
+      ev.respondWith(caches.match("./404.html"));
     }
 
     // Cache to movie cache if movie not in cache
     if (isAPI) {
       ev.respondWith(
-        caches
-          .match(ev.request)
-          .then((cacheResponse) => {
-            return (
-              cacheResponse ||
-              fetch(ev.request).then((fetchResponse) => {
+        caches.match(ev.request).then((cacheResponse) => {
+          return (
+            cacheResponse ||
+            fetch(ev.request)
+              .catch(() => {
+                return caches.match("./404.html");
+              })
+              .then((fetchResponse) => {
                 return caches.open(moviesCache).then((cache) => {
                   cache.put(ev.request, fetchResponse.clone());
                   return fetchResponse;
                 });
               })
-            );
-          })
-          .catch(() => {
-            return caches.match("./404.html");
-          })
+          );
+        })
       );
     }
   } else {
     if (url.pathname.endsWith("/searchResults.html")) {
       ev.respondWith(
         caches.match("./cacheResults.html").then((cacheResponse) => {
-          return cacheResponse || caches.match("./404.html");
+          return cacheResponse;
         })
       );
     }
