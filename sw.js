@@ -105,7 +105,7 @@ self.addEventListener("fetch", function (ev) {
       );
     }
 
-    if (isImage) {
+    if (isImage || isIndex || isCSS || isManifest || isFont) {
       ev.respondWith(
         caches.match(ev.request).then((cacheResponse) => cacheResponse)
       );
