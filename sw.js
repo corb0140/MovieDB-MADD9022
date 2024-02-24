@@ -39,6 +39,7 @@ self.addEventListener("activate", async (ev) => {
 //
 
 self.addEventListener("fetch", function (ev) {
+  let mode = ev.request.mode;
   let url = new URL(ev.request.url);
   let isOnline = navigator.onLine;
   let isImage =
@@ -60,12 +61,17 @@ self.addEventListener("fetch", function (ev) {
 
   if (isOnline) {
     // cache images to main cache if not in cache
-    if (isImage) {
+    if (!isSearchResults) {
       ev.respondWith(
         caches.match(ev.request).then((cacheResponse) => {
           return (
             cacheResponse ||
             fetch(ev.request).then((fetchResponse) => {
+              console.log(fetchResponse);
+
+              if (fetchResponse.status === 404) {
+                return caches.match("./404.html");
+              }
               return caches.open(cacheName).then((cache) => {
                 cache.put(ev.request, fetchResponse.clone());
                 return fetchResponse;
@@ -74,8 +80,6 @@ self.addEventListener("fetch", function (ev) {
           );
         })
       );
-    } else {
-      // if not in cache, return 404 page
     }
 
     // Cache to movie cache if movie not in cache
