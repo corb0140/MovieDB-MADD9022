@@ -35,6 +35,7 @@ self.addEventListener("activate", async (ev) => {
 //
 
 self.addEventListener("fetch", function (ev) {
+  let mode = ev.request.mode;
   let url = new URL(ev.request.url);
   let isOnline = navigator.onLine;
   let isImage =
@@ -54,8 +55,6 @@ self.addEventListener("fetch", function (ev) {
   let isIndex =
     url.pathname.endsWith("/") || url.pathname.endsWith("/index.html");
   let isSearchResults = url.pathname.endsWith("/searchResults.html");
-  let isDetails = url.pathname.endsWith("/details.html");
-  let is404 = url.pathname.endsWith("/404.html");
 
   if (isOnline) {
     // cache images to main cache if not in cache
@@ -98,7 +97,7 @@ self.addEventListener("fetch", function (ev) {
       );
     }
   } else {
-    if (url.pathname.endsWith("/searchResults.html")) {
+    if (isSearchResults) {
       ev.respondWith(
         caches.match("./cacheResults.html").then((cacheResponse) => {
           return cacheResponse;
@@ -108,7 +107,9 @@ self.addEventListener("fetch", function (ev) {
 
     if (isImage || isIndex || isCSS || isManifest || isFont) {
       ev.respondWith(
-        caches.match(ev.request).then((cacheResponse) => cacheResponse)
+        caches.match(ev.request).catch(() => {
+          return caches.match("./404.html");
+        })
       );
     }
   }
