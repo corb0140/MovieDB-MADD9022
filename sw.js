@@ -53,8 +53,6 @@ self.addEventListener("fetch", function (ev) {
   let isJS = url.pathname.includes(".js");
   let isManifest = url.pathname.includes("manifest.json");
 
-  console.log(url, isOnline);
-
   if (isOnline) {
     // cache images to main cache if not in cache
     if (isImage || isFont || isCSS || isJS || isIndex || isManifest) {
@@ -104,6 +102,12 @@ self.addEventListener("fetch", function (ev) {
         caches.match("./cacheResults.html").then((cacheResponse) => {
           return cacheResponse || caches.match("./404.html");
         })
+      );
+    }
+
+    if (isImage) {
+      ev.respondWith(
+        caches.match(ev.request).then((cacheResponse) => cacheResponse)
       );
     }
   }
