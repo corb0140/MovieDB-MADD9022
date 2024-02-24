@@ -1,8 +1,9 @@
-const version = "1";
+const version = "3";
 const cacheName = `MovieDB-v${version}`;
 const moviesCache = `movies-v${version}`;
 const staticAssets = [
   "./",
+  "./index.html",
   "./cacheResults.html",
   "./404.html",
   "./searchResults.html",
@@ -46,12 +47,12 @@ self.addEventListener("fetch", function (ev) {
     url.pathname.includes("ico") ||
     url.hostname.includes("image.tmdb.org");
   let isAPI = url.pathname.startsWith("/api/id");
-  let isIndex =
-    url.pathname.endsWith("/") || url.pathname.endsWith("/index.html");
   let isFont = url.hostname.includes("fonts.googleapis.com");
   let isCSS = url.pathname.includes(".css");
   let isJS = url.pathname.includes(".js");
   let isManifest = url.pathname.includes("manifest.json");
+  let isIndex =
+    url.pathname.endsWith("/") || url.pathname.endsWith("/index.html");
   let isSearchResults = url.pathname.endsWith("/searchResults.html");
   let isDetails = url.pathname.endsWith("/details.html");
   let is404 = url.pathname.endsWith("/404.html");
@@ -74,7 +75,6 @@ self.addEventListener("fetch", function (ev) {
       );
     } else {
       // if not in cache, return 404 page
-      ev.respondWith(caches.match("./404.html"));
     }
 
     // Cache to movie cache if movie not in cache
