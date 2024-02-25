@@ -1,4 +1,4 @@
-const version = "5";
+const version = "1";
 const cacheName = `MovieDB-v${version}`;
 const moviesCache = `movies-v${version}`;
 const staticAssets = [
@@ -51,13 +51,14 @@ self.addEventListener("fetch", function (ev) {
     url.pathname.includes("svg") ||
     url.pathname.includes("ico") ||
     url.hostname.includes("image.tmdb.org");
-  let isAPI = url.pathname.startsWith("/api/id");
+  let isAPI = url.pathname.startsWith("/api");
+  let isAPIiD = url.pathname.includes("/api/id");
   let isJS = url.pathname.endsWith("js");
   let isSearchResults = url.pathname.endsWith("/searchResults.html");
 
   if (isOnline) {
     // cache images to main cache if not in cache
-    if ((!isSearchResults, !isJS)) {
+    if (!isSearchResults && !isAPI && !isJS) {
       ev.respondWith(
         caches.match(ev.request).then((cacheResponse) => {
           return (
@@ -79,7 +80,7 @@ self.addEventListener("fetch", function (ev) {
     }
 
     // Cache to movie cache if movie not in cache
-    if (isAPI) {
+    if (isAPIiD) {
       ev.respondWith(
         caches.match(ev.request).then((cacheResponse) => {
           return (
@@ -111,7 +112,7 @@ self.addEventListener("fetch", function (ev) {
       );
     }
 
-    if (isAPI) {
+    if (isAPIiD) {
       caches.match(ev.request).catch(() => {
         return caches.match("./404.html");
       });
