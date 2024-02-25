@@ -58,7 +58,7 @@ self.addEventListener("fetch", function (ev) {
 
   if (isOnline) {
     // cache images to main cache if not in cache
-    if (!isSearchResults && !isAPI && !isJS) {
+    if (!isSearchResults && !isAPI) {
       ev.respondWith(
         caches.match(ev.request).then((cacheResponse) => {
           return (
