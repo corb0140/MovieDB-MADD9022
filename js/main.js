@@ -14,7 +14,8 @@ const APP = {
     if (
       window.location.pathname === "/" ||
       window.location.pathname === "/index.html" ||
-      window.location.pathname === "/MovieDB-MADD9022/"
+      window.location.pathname === "/MovieDB-MADD9022/" ||
+      window.location.pathname === "/MovieDB-MADD9022/index.html"
     ) {
       APP.searchForm.addEventListener("submit", (ev) => {
         ev.preventDefault();
@@ -92,7 +93,12 @@ const APP = {
       APP.fetchMovies(sort, keyword);
     } else if (page.endsWith("/details.html")) {
       let id = params.get("id");
-      APP.fetchMovies(id);
+
+      if (navigator.onLine) {
+        APP.fetchMovies(id);
+      } else {
+        APP.offlineDetails(id);
+      }
     }
   },
 
@@ -190,6 +196,40 @@ const APP = {
 
         if (id) {
           window.location.href = `./details.html?id=${id}`;
+        }
+      });
+    });
+  },
+
+  offlineDetails: (id) => {
+    navigator.serviceWorker.addEventListener("message", (ev) => {
+      console.log(ev.data.movies);
+      console.log(id);
+
+      const movies = ev.data.movies;
+
+      movies.forEach((movie) => {
+        if (movie.data.id == parseInt(id)) {
+          console.log("match");
+
+          let detailsCard = document.createElement("div");
+          detailsCard.classList.add("details-card");
+
+          detailsCard.innerHTML = `
+           <h2>${movie.data.title}</h2>
+
+            <div class="details-card--img">
+                <img src="https://image.tmdb.org/t/p/w500${movie.data.poster_path}" alt="${movie.data.title}" />
+            </div>
+
+            <div class="details-card--content">
+                <p>${movie.data.overview}</p>
+                <p>Release Date: ${movie.data.release_date}</p>
+                <p>Vote Average: ${movie.data.vote_average}</p>
+            </div>
+            `;
+
+          APP.detailsContainer.appendChild(detailsCard);
         }
       });
     });

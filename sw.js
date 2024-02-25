@@ -52,16 +52,12 @@ self.addEventListener("fetch", function (ev) {
     url.pathname.includes("ico") ||
     url.hostname.includes("image.tmdb.org");
   let isAPI = url.pathname.startsWith("/api/id");
-  let isFont = url.hostname.includes("fonts.googleapis.com");
-  let isCSS = url.pathname.includes(".css");
-  let isManifest = url.pathname.includes("manifest.json");
-  let isIndex =
-    url.pathname.endsWith("/") || url.pathname.endsWith("/index.html");
+  let isJS = url.pathname.endsWith("js");
   let isSearchResults = url.pathname.endsWith("/searchResults.html");
 
   if (isOnline) {
     // cache images to main cache if not in cache
-    if (!isSearchResults) {
+    if ((!isSearchResults, !isJS)) {
       ev.respondWith(
         caches.match(ev.request).then((cacheResponse) => {
           return (
@@ -88,16 +84,12 @@ self.addEventListener("fetch", function (ev) {
         caches.match(ev.request).then((cacheResponse) => {
           return (
             cacheResponse ||
-            fetch(ev.request)
-              .catch(() => {
-                return caches.match("./404.html");
-              })
-              .then((fetchResponse) => {
-                return caches.open(moviesCache).then((cache) => {
-                  cache.put(ev.request, fetchResponse.clone());
-                  return fetchResponse;
-                });
-              })
+            fetch(ev.request).then((fetchResponse) => {
+              return caches.open(moviesCache).then((cache) => {
+                cache.put(ev.request, fetchResponse.clone());
+                return fetchResponse;
+              });
+            })
           );
         })
       );
@@ -111,12 +103,18 @@ self.addEventListener("fetch", function (ev) {
       );
     }
 
-    if (isImage || isIndex || isCSS || isManifest || isFont) {
+    if ((!isSearchResults, !isJS)) {
       ev.respondWith(
         caches.match(ev.request).catch(() => {
           return caches.match("./404.html");
         })
       );
+    }
+
+    if (isAPI) {
+      caches.match(ev.request).catch(() => {
+        return caches.match("./404.html");
+      });
     }
   }
 });
