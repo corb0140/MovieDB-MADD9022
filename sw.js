@@ -104,7 +104,7 @@ self.addEventListener("fetch", function (ev) {
       );
     }
 
-    if ((!isSearchResults, !isJS)) {
+    if ((!isSearchResults, isJS)) {
       ev.respondWith(
         caches.match(ev.request).catch(() => {
           return caches.match("./404.html");
