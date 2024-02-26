@@ -4,7 +4,7 @@ const APP = {
   selectOption: document.querySelector(".selectOption"),
   selection: null,
   cardContainer: document.querySelector("#card-container"),
-
+  cacheContainer: document.querySelector("#cache-container"),
   detailsContainer: document.querySelector("#movie-details--container"),
   fetchUrl: "https://moviedb-6n0o.onrender.com/",
 
@@ -39,39 +39,46 @@ const APP = {
     // call pageParams after clicking submit button
     APP.pageParams();
 
+    if (!navigator.onLine) {
+      // call cache results page if offline
+      APP.cacheResults();
+    }
+
     // CONNECTED
     console.log("CONNECTED");
   },
 
   fetchMovies: (sort, keyword) => {
-    if (sort === "popularity" || sort === "release-date" || sort === "vote") {
-      fetch(`${APP.fetchUrl}api/${sort}?keyword=${encodeURI(keyword)}`, {
-        method: "GET",
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          return response.json();
+    if (navigator.onLine) {
+      if (sort === "popularity" || sort === "release-date" || sort === "vote") {
+        fetch(`${APP.fetchUrl}api/${sort}?keyword=${keyword}`, {
+          method: "GET",
         })
-        .then((data) => {
-          console.log(data);
-          APP.searchResults(data);
-        });
-    } else {
-      fetch(`${APP.fetchUrl}api/id/${sort}`)
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          return response.json();
-        })
-        .then(({ data }) => {
-          APP.movieDetails(data);
-        })
-        .catch((err) => {
-          console.log("ServiceWorker not ready", err);
-        });
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            return response.json();
+          })
+          .then(({ data }) => {
+            // console.log(data);
+            APP.searchResults(data);
+          });
+      } else {
+        fetch(`${APP.fetchUrl}api/id/${sort}`)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            return response.json();
+          })
+          .then(({ data }) => {
+            APP.movieDetails(data);
+          })
+          .catch((err) => {
+            console.log("ServiceWorker not ready", err);
+          });
+      }
     }
   },
 
@@ -86,63 +93,34 @@ const APP = {
       APP.fetchMovies(sort, keyword);
     } else if (page.endsWith("/details.html")) {
       let id = params.get("id");
-      APP.fetchMovies(id);
+
+      if (navigator.onLine) {
+        APP.fetchMovies(id);
+      } else {
+        APP.offlineDetails(id);
+      }
     }
   },
 
   searchResults: (data) => {
-    if (!Array.isArray(data)) {
-      data = [data];
-    }
-    console.log(data);
     let li = document.createElement("li");
     let list = new DocumentFragment();
 
-    if (data.length === 1) {
-      data.forEach((movie) => {
-        movie.data.forEach((movie) => {
-          let img =
-            movie.poster_path === null
-              ? "./img/movie.svg"
-              : `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
-
-          li.innerHTML += `
+    data.forEach((movie) => {
+      li.innerHTML += `
         <div class="card" data-uid=${movie.id}>
             <div class="card-img">
-            <img src="${img}" alt="${movie.title}" />
+            <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" alt="${movie.title}" />
             </div>
             <div class="card-content">
             <h2>${movie.title}</h2>
-                  
-            <img class="svg-color" src="./img/movie.svg" alt="movie icon" />
-            </div>
-        </div>
-          `;
-          list.appendChild(li);
-        });
-      });
-    } else {
-      data.forEach((movie) => {
-        let img =
-          movie.poster_path === null
-            ? "./img/movie.svg"
-            : `https://image.tmdb.org/t/p/w500${movie.data.poster_path}`;
-        li.innerHTML += `
-        <div class="card" data-uid=${movie.data.id}>
-            <div class="card-img">
-            <img src="${img}" alt="${movie.data.title}" />
-            </div>
-            <div class="card-content">
-            <h2>${movie.data.title}</h2>
                   
             <img src="./img/movie.svg" alt="movie icon" />
             </div>
         </div>
           `;
-        list.appendChild(li);
-      });
-    }
-
+      list.appendChild(li);
+    });
     APP.cardContainer.appendChild(list);
 
     // add onclick event listener to each card
@@ -177,6 +155,81 @@ const APP = {
             `;
 
     APP.detailsContainer.appendChild(detailsCard);
+  },
+
+  cacheResults: () => {
+    console.log("cacheResults");
+
+    navigator.serviceWorker.ready.then((reg) => {
+      console.log("Message sent to service worker");
+      reg.active.postMessage({ cache: "movieCache" });
+    });
+
+    navigator.serviceWorker.addEventListener("message", (ev) => {
+      console.log(ev.data.movies);
+
+      const movies = ev.data.movies;
+
+      let li = document.createElement("li");
+      let list = new DocumentFragment();
+
+      movies.forEach((movie) => {
+        li.innerHTML += `
+        <div class="card" data-uid=${movie.data.id}>
+            <div class="card-img">
+            <img src="https://image.tmdb.org/t/p/w500${movie.data.poster_path}" alt="${movie.data.title}" />
+            </div>
+            <div class="card-content">
+            <h2>${movie.data.title}</h2>
+
+            <img src="./img/movie.svg" alt="movie icon" />
+            </div>
+        </div>
+              `;
+        list.appendChild(li);
+      });
+      APP.cacheContainer.appendChild(list);
+
+      APP.cacheContainer.addEventListener("click", (ev) => {
+        const target = ev.target.closest(".card");
+        const id = target.getAttribute("data-uid");
+
+        if (id) {
+          window.location.href = `./details.html?id=${id}`;
+        }
+      });
+    });
+  },
+
+  offlineDetails: (id) => {
+    navigator.serviceWorker.addEventListener("message", (ev) => {
+      const movies = ev.data.movies;
+
+      movies.forEach((movie) => {
+        if (movie.data.id === parseInt(id)) {
+          console.log("match");
+
+          let detailsCard = document.createElement("div");
+          detailsCard.classList.add("details-card");
+
+          detailsCard.innerHTML = `
+           <h2>${movie.data.title}</h2>
+
+            <div class="details-card--img">
+                <img src="https://image.tmdb.org/t/p/w500${movie.data.poster_path}" alt="${movie.data.title}" />
+            </div>
+
+            <div class="details-card--content">
+                <p>${movie.data.overview}</p>
+                <p>Release Date: ${movie.data.release_date}</p>
+                <p>Vote Average: ${movie.data.vote_average}</p>
+            </div>
+            `;
+
+          APP.detailsContainer.appendChild(detailsCard);
+        }
+      });
+    });
   },
 
   serviceWorker: () => {
