@@ -148,13 +148,13 @@ self.addEventListener("fetch", function (ev) {
       );
     }
 
-    if (isDetails) {
-      ev.respondWith(
-        caches.match("/details.html").then((cacheResponse) => {
-          return cacheResponse || fetch(ev.request);
-        })
-      );
-    }
+    // if (isDetails) {
+    //   ev.respondWith(
+    //     caches.match(ev.request).then((cacheResponse) => {
+    //       return cacheResponse || fetch(ev.request);
+    //     })
+    //   );
+    // }
 
     if (isIndex) {
       ev.respondWith(
