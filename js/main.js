@@ -4,7 +4,6 @@ const APP = {
   selectOption: document.querySelector(".selectOption"),
   selection: null,
   cardContainer: document.querySelector("#card-container"),
-  cacheContainer: document.querySelector("#cache-container"),
   detailsContainer: document.querySelector("#movie-details--container"),
   fetchUrl: "https://moviedb-6n0o.onrender.com/",
 
@@ -95,7 +94,6 @@ const APP = {
       data = [data];
     }
     console.log(data);
-
     let li = document.createElement("li");
     let list = new DocumentFragment();
 

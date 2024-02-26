@@ -1,5 +1,5 @@
-const version = "1";
-const cacheName = `MovieDB-v${version}`;
+const version = "4";
+const cacheName = `movieDB-v${version}`;
 const moviesCache = `movies-v${version}`;
 const staticAssets = [
   "./",
