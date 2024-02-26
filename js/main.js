@@ -4,7 +4,7 @@ const APP = {
   selectOption: document.querySelector(".selectOption"),
   selection: null,
   cardContainer: document.querySelector("#card-container"),
-  cacheContainer: document.querySelector("#cache-container"),
+
   detailsContainer: document.querySelector("#movie-details--container"),
   fetchUrl: "https://moviedb-6n0o.onrender.com/",
 
@@ -14,8 +14,8 @@ const APP = {
     if (
       window.location.pathname === "/" ||
       window.location.pathname === "/index.html" ||
-      window.location.pathname === "/tester/" ||
-      window.location.pathname === "/tester/index.html"
+      window.location.pathname === "/MovieDB-MADD9022/" ||
+      window.location.pathname === "/MovieDB-MADD9022/index.html"
     ) {
       APP.searchForm.addEventListener("submit", (ev) => {
         ev.preventDefault();
