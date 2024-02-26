@@ -93,13 +93,15 @@ const APP = {
     if (!Array.isArray(data)) {
       data = [data];
     }
-    console.log(data);
+    console.log(data.length);
     let li = document.createElement("li");
     let list = new DocumentFragment();
 
     if (data.length === 1) {
       data.forEach((movie) => {
+        console.log(movie);
         movie.data.forEach((movie) => {
+          console.log(movie);
           li.innerHTML += `
         <div class="card" data-uid=${movie.id}>
             <div class="card-img">
