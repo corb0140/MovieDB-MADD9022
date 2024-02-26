@@ -118,7 +118,7 @@ self.addEventListener("fetch", function (ev) {
 
     if (isJS) {
       ev.respondWith(
-        caches.match("/js/main.js").then((cacheResponse) => {
+        caches.match(ev.request).then((cacheResponse) => {
           return cacheResponse || fetch(ev.request);
         })
       );
