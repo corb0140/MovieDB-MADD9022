@@ -73,7 +73,7 @@ self.addEventListener("fetch", function (ev) {
               if (fetchResponse.status === 404) {
                 return caches.match("./404.html");
               }
-              return caches.open(testName).then((cache) => {
+              return caches.open(cacheName).then((cache) => {
                 cache.put(ev.request, fetchResponse.clone());
                 return fetchResponse;
               });
@@ -90,7 +90,7 @@ self.addEventListener("fetch", function (ev) {
           return (
             cacheResponse ||
             fetch(ev.request).then((fetchResponse) => {
-              return caches.open(testCache).then((cache) => {
+              return caches.open(moviesCache).then((cache) => {
                 cache.put(ev.request, fetchResponse.clone());
                 return fetchResponse;
               });
@@ -175,7 +175,7 @@ self.addEventListener("fetch", function (ev) {
     if (isAPI && !isJSON) {
       ev.respondWith(
         caches
-          .open(testCache)
+          .open(moviesCache)
           .then((cache) => {
             return cache.keys();
           })
