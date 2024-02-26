@@ -107,10 +107,15 @@ const APP = {
     let list = new DocumentFragment();
 
     data.forEach((movie) => {
+      let img =
+        movie.poster_path === null
+          ? "./img/image-not-found-icon.svg"
+          : `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
+
       li.innerHTML += `
         <div class="card" data-uid=${movie.id}>
             <div class="card-img">
-            <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" alt="${movie.title}" />
+            <img src="${img}" alt="${movie.title}" />
             </div>
             <div class="card-content">
             <h2>${movie.title}</h2>
@@ -137,6 +142,11 @@ const APP = {
   movieDetails: (data) => {
     APP.detailsContainer.innerHTML = "";
 
+    let img =
+      data.poster_path === null
+        ? "./img/image-not-found-icon.svg"
+        : `https://image.tmdb.org/t/p/w500${data.poster_path}`;
+
     let detailsCard = document.createElement("div");
     detailsCard.classList.add("details-card");
 
@@ -144,7 +154,7 @@ const APP = {
            <h2>${data.title}</h2>
 
             <div class="details-card--img">
-                <img src="https://image.tmdb.org/t/p/w500${data.poster_path}" alt="${data.title}" />
+                <img src="${img}" alt="${data.title}" />
             </div>
 
             <div class="details-card--content">
