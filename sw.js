@@ -54,10 +54,15 @@ self.addEventListener("fetch", function (ev) {
   let isJSON = url.pathname.includes("/api/id");
   let isJS = url.pathname.endsWith("main.js");
   let isSearchResults = url.pathname.endsWith("/searchResults.html");
+  let isDetails = url.pathname.endsWith("/details.html");
+  let isIndex = url.pathname.endsWith("/index.html");
+  let isCSS = url.pathname.endsWith("main.css");
+  let isManifest = url.pathname.endsWith("manifest.json");
+  let isFont = url.hostname.includes("fonts.googleapis.com");
 
   if (isOnline) {
     // cache images to main cache if not in cache
-    if (!isAPI && !isSearchResults) {
+    if (!isAPI && !isSearchResults && !isDetails) {
       ev.respondWith(
         caches.match(ev.request).then((cacheResponse) => {
           return (
@@ -68,7 +73,7 @@ self.addEventListener("fetch", function (ev) {
               if (fetchResponse.status === 404) {
                 return caches.match("./404.html");
               }
-              return caches.open(cacheName).then((cache) => {
+              return caches.open(testName).then((cache) => {
                 cache.put(ev.request, fetchResponse.clone());
                 return fetchResponse;
               });
@@ -85,7 +90,7 @@ self.addEventListener("fetch", function (ev) {
           return (
             cacheResponse ||
             fetch(ev.request).then((fetchResponse) => {
-              return caches.open(moviesCache).then((cache) => {
+              return caches.open(testCache).then((cache) => {
                 cache.put(ev.request, fetchResponse.clone());
                 return fetchResponse;
               });
@@ -103,10 +108,10 @@ self.addEventListener("fetch", function (ev) {
       );
     }
 
-    if (!isSearchResults) {
+    if (isFont) {
       ev.respondWith(
-        caches.match(ev.request).catch(() => {
-          return caches.match("./404.html");
+        caches.match(ev.request).then((cacheResponse) => {
+          return cacheResponse || fetch(ev.request);
         })
       );
     }
@@ -118,30 +123,90 @@ self.addEventListener("fetch", function (ev) {
         })
       );
     }
-  }
-});
 
-self.addEventListener("message", (ev) => {
-  if (ev.data.cache === "movieCache") {
-    caches.open(moviesCache).then((cache) => {
-      return cache
-        .keys()
-        .then((keys) => {
-          return Promise.all(
-            keys.map((key) => {
-              return caches.match(key).then((response) => {
-                return response.json();
-              });
-            })
-          );
+    if (isCSS) {
+      ev.respondWith(
+        caches.match("/css/main.css").then((cacheResponse) => {
+          return cacheResponse || fetch(ev.request);
         })
-        .then((data) => {
-          if (data) {
-            self.clients.get(ev.source.id).then((client) => {
-              client.postMessage({ movies: data });
+      );
+    }
+
+    if (isManifest) {
+      ev.respondWith(
+        caches.match("/manifest.json").then((cacheResponse) => {
+          return cacheResponse || fetch(ev.request);
+        })
+      );
+    }
+
+    if (isImage) {
+      ev.respondWith(
+        caches.match(ev.request).then((cacheResponse) => {
+          return cacheResponse || fetch(ev.request);
+        })
+      );
+    }
+
+    if (isDetails) {
+      ev.respondWith(
+        caches.match("/details.html").then((cacheResponse) => {
+          return cacheResponse || fetch(ev.request);
+        })
+      );
+    }
+
+    if (isIndex) {
+      ev.respondWith(
+        caches.match(ev.request).then((cacheResponse) => {
+          return cacheResponse || fetch(ev.request);
+        })
+      );
+    }
+
+    if (isJSON) {
+      ev.respondWith(
+        caches.match(ev.request).then((cacheResponse) => {
+          return cacheResponse || fetch(ev.request);
+        })
+      );
+    }
+
+    if (isAPI && !isJSON) {
+      ev.respondWith(
+        caches
+          .open(testCache)
+          .then((cache) => {
+            return cache.keys();
+          })
+          .then((keys) => {
+            //retrieve all the files from the cache
+            console.log(keys.length, "color json files");
+            return Promise.all(keys.map((key) => caches.match(key)));
+          })
+          .then((responses) => {
+            //read the json from all the file response objects
+            console.log(responses);
+            return Promise.all(responses.map((response) => response.json()));
+          })
+          .then((objects) => {
+            //objects is an array that combined all the json into a single response object
+            console.log({ objects });
+            let combinedFile = new File(
+              [JSON.stringify(objects)],
+              "combined.json",
+              { type: "application/json" }
+            );
+            let combinedResponse = new Response(combinedFile);
+            return combinedResponse;
+          })
+          .catch((err) => {
+            return new Response(null, {
+              status: 437,
+              statusText: "Invalid Data",
             });
-          }
-        });
-    });
+          })
+      );
+    }
   }
 });
