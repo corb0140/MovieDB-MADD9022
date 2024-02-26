@@ -1,4 +1,4 @@
-const version = "1";
+const version = "2";
 const cacheName = `MovieDB-v${version}`;
 const moviesCache = `movies-v${version}`;
 const staticAssets = [
@@ -39,7 +39,6 @@ self.addEventListener("activate", async (ev) => {
 //
 
 self.addEventListener("fetch", function (ev) {
-  let mode = ev.request.mode;
   let url = new URL(ev.request.url);
   let isOnline = navigator.onLine;
   let isImage =
@@ -52,13 +51,13 @@ self.addEventListener("fetch", function (ev) {
     url.pathname.includes("ico") ||
     url.hostname.includes("image.tmdb.org");
   let isAPI = url.pathname.startsWith("/api");
-  let isAPIiD = url.pathname.includes("/api/id");
+  let isJSON = url.pathname.includes("/api/id");
   let isJS = url.pathname.endsWith("js");
   let isSearchResults = url.pathname.endsWith("/searchResults.html");
 
   if (isOnline) {
     // cache images to main cache if not in cache
-    if (!isSearchResults && !isAPI) {
+    if (!isAPI && !isSearchResults) {
       ev.respondWith(
         caches.match(ev.request).then((cacheResponse) => {
           return (
@@ -80,7 +79,7 @@ self.addEventListener("fetch", function (ev) {
     }
 
     // Cache to movie cache if movie not in cache
-    if (isAPIiD) {
+    if (isJSON) {
       ev.respondWith(
         caches.match(ev.request).then((cacheResponse) => {
           return (
@@ -104,18 +103,12 @@ self.addEventListener("fetch", function (ev) {
       );
     }
 
-    if ((!isSearchResults, isJS)) {
+    if (!isSearchResults) {
       ev.respondWith(
         caches.match(ev.request).catch(() => {
           return caches.match("./404.html");
         })
       );
-    }
-
-    if (isAPIiD) {
-      caches.match(ev.request).catch(() => {
-        return caches.match("./404.html");
-      });
     }
   }
 });

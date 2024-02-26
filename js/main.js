@@ -203,13 +203,10 @@ const APP = {
 
   offlineDetails: (id) => {
     navigator.serviceWorker.addEventListener("message", (ev) => {
-      console.log(ev.data.movies);
-      console.log(id);
-
       const movies = ev.data.movies;
 
       movies.forEach((movie) => {
-        if (movie.data.id == parseInt(id)) {
+        if (movie.data.id === parseInt(id)) {
           console.log("match");
 
           let detailsCard = document.createElement("div");
