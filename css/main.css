@@ -273,7 +273,12 @@ li {
 .card-img img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+
+  background-color: #840032;
+}
+
+.svg-color {
+  fill: #fafafa;
 }
 
 .card-content {
