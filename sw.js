@@ -113,8 +113,8 @@ self.addEventListener("fetch", function (ev) {
 
     if (isJS) {
       ev.respondWith(
-        caches.match(ev.request).then((cacheResponse) => {
-          return cacheResponse;
+        caches.match("/js/main.js").then((cacheResponse) => {
+          return cacheResponse || fetch(ev.request);
         })
       );
     }
