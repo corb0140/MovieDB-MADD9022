@@ -1,4 +1,4 @@
-const version = "2";
+const version = "1";
 const cacheName = `MovieDB-v${version}`;
 const moviesCache = `movies-v${version}`;
 const staticAssets = [
@@ -52,7 +52,7 @@ self.addEventListener("fetch", function (ev) {
     url.hostname.includes("image.tmdb.org");
   let isAPI = url.pathname.startsWith("/api");
   let isJSON = url.pathname.includes("/api/id");
-  let isJS = url.pathname.endsWith("js");
+  let isJS = url.pathname.endsWith("main.js");
   let isSearchResults = url.pathname.endsWith("/searchResults.html");
 
   if (isOnline) {
@@ -107,6 +107,14 @@ self.addEventListener("fetch", function (ev) {
       ev.respondWith(
         caches.match(ev.request).catch(() => {
           return caches.match("./404.html");
+        })
+      );
+    }
+
+    if (isJS) {
+      ev.respondWith(
+        caches.match(ev.request).then((cacheResponse) => {
+          return cacheResponse;
         })
       );
     }
