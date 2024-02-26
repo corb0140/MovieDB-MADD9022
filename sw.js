@@ -1,4 +1,4 @@
-const version = "4";
+const version = "1";
 const cacheName = `movieDB-v${version}`;
 const moviesCache = `movies-v${version}`;
 const staticAssets = [
@@ -181,7 +181,6 @@ self.addEventListener("fetch", function (ev) {
           })
           .then((keys) => {
             //retrieve all the files from the cache
-            console.log(keys.length, "color json files");
             return Promise.all(keys.map((key) => caches.match(key)));
           })
           .then((responses) => {
