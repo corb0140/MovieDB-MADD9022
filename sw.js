@@ -126,7 +126,7 @@ self.addEventListener("fetch", function (ev) {
 
     if (isCSS) {
       ev.respondWith(
-        caches.match("/css/main.css").then((cacheResponse) => {
+        caches.match(ev.request).then((cacheResponse) => {
           return cacheResponse || fetch(ev.request);
         })
       );
@@ -134,7 +134,7 @@ self.addEventListener("fetch", function (ev) {
 
     if (isManifest) {
       ev.respondWith(
-        caches.match("/manifest.json").then((cacheResponse) => {
+        caches.match(ev.request).then((cacheResponse) => {
           return cacheResponse || fetch(ev.request);
         })
       );
@@ -150,7 +150,7 @@ self.addEventListener("fetch", function (ev) {
 
     if (isDetails) {
       ev.respondWith(
-        caches.match("/details.html").then((cacheResponse) => {
+        caches.match(ev.request).then((cacheResponse) => {
           return cacheResponse || fetch(ev.request);
         })
       );
