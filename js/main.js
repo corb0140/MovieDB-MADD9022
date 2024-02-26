@@ -184,10 +184,15 @@ const APP = {
       let list = new DocumentFragment();
 
       movies.forEach((movie) => {
+        let img =
+          movie.data.poster_path === null
+            ? "./img/image-not-found-icon.svg"
+            : `https://image.tmdb.org/t/p/w500${movie.data.poster_path}`;
+
         li.innerHTML += `
         <div class="card" data-uid=${movie.data.id}>
             <div class="card-img">
-            <img src="https://image.tmdb.org/t/p/w500${movie.data.poster_path}" alt="${movie.data.title}" />
+            <img src="${img}" alt="${movie.data.title}" />
             </div>
             <div class="card-content">
             <h2>${movie.data.title}</h2>
@@ -217,7 +222,10 @@ const APP = {
 
       movies.forEach((movie) => {
         if (movie.data.id === parseInt(id)) {
-          console.log("match");
+          let img =
+            movie.data.poster_path === null
+              ? "./img/image-not-found-icon.svg"
+              : `https://image.tmdb.org/t/p/w500${movie.data.poster_path}`;
 
           let detailsCard = document.createElement("div");
           detailsCard.classList.add("details-card");
@@ -226,7 +234,7 @@ const APP = {
            <h2>${movie.data.title}</h2>
 
             <div class="details-card--img">
-                <img src="https://image.tmdb.org/t/p/w500${movie.data.poster_path}" alt="${movie.data.title}" />
+                <img src="${img}" alt="${movie.data.title}" />
             </div>
 
             <div class="details-card--content">

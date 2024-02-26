@@ -1,4 +1,4 @@
-const version = "1";
+const version = "4";
 const cacheName = `MovieDB-v${version}`;
 const moviesCache = `movies-v${version}`;
 const staticAssets = [
